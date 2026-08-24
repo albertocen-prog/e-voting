@@ -1,0 +1,169 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Enum for user roles
+enum UserRole {
+  VOTER
+  ELECTION_OFFICIAL
+  OBSERVER
+  ADMIN
+}
+
+// Enum for user status
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+// Enum for election status
+enum ElectionStatus {
+  DRAFT
+  OPEN
+  CLOSED
+  ARCHIVED
+}
+
+// Enum for ballot type
+enum BallotType {
+  SINGLE_CHOICE
+  MULTIPLE_CHOICE
+}
+
+// Users table - handles both voters and staff
+model User {
+  id                String    @id @default(cuid())
+  email             String?   @unique
+  password_hash     String?
+  name              String
+  role              UserRole  @default(VOTER)
+  status            UserStatus @default(ACTIVE)
+  created_at        DateTime  @default(now())
+  updated_at        DateTime  @updatedAt
+
+  // Relations
+  voter_registration VoterRegistration?
+  created_elections  Election[] @relation("CreatedBy")
+  audit_logs         AuditLog[] @relation("ActorLogs")
+  votes              Vote[]
+
+  @@map("users")
+}
+
+// Voter registration tracking
+model VoterRegistration {
+  id                String    @id @default(cuid())
+  user_id           String?   @unique
+  voter_id          String    @unique
+  verification_info String?
+  approved_by       String?
+  approved_at       DateTime?
+  created_at        DateTime  @default(now())
+  updated_at        DateTime  @updatedAt
+
+  // Relations
+  user              User?     @relation(fields: [user_id], references: [id], onDelete: SetNull)
+
+  @@map("voter_registrations")
+}
+
+// Elections
+model Election {
+  id                String    @id @default(cuid())
+  title             String
+  description       String?
+  start_at          DateTime
+  end_at            DateTime
+  status            ElectionStatus @default(DRAFT)
+  created_by        String
+  created_at        DateTime  @default(now())
+  updated_at        DateTime  @updatedAt
+
+  // Relations
+  creator           User      @relation("CreatedBy", fields: [created_by], references: [id], onDelete: Cascade)
+  ballots           Ballot[]
+  votes             Vote[]
+  audit_logs        AuditLog[]
+
+  @@map("elections")
+}
+
+// Ballots (one per election, but can have multiple options)
+model Ballot {
+  id                String    @id @default(cuid())
+  election_id       String
+  title             String
+  type              BallotType @default(SINGLE_CHOICE)
+  created_at        DateTime  @default(now())
+  updated_at        DateTime  @updatedAt
+
+  // Relations
+  election          Election  @relation(fields: [election_id], references: [id], onDelete: Cascade)
+  options           Option[]
+  votes             Vote[]
+
+  @@map("ballots")
+}
+
+// Options/Candidates
+model Option {
+  id                String    @id @default(cuid())
+  ballot_id         String
+  label             String
+  metadata          Json?
+  created_at        DateTime  @default(now())
+
+  // Relations
+  ballot            Ballot    @relation(fields: [ballot_id], references: [id], onDelete: Cascade)
+  votes             Vote[]
+
+  @@map("options")
+}
+
+// Votes (traceable to voter_id for auditability)
+model Vote {
+  id                String    @id @default(cuid())
+  election_id       String
+  ballot_id         String
+  option_id         String
+  voter_id          String
+  user_id           String?
+  created_at        DateTime  @default(now())
+
+  // Relations
+  election          Election  @relation(fields: [election_id], references: [id], onDelete: Cascade)
+  ballot            Ballot    @relation(fields: [ballot_id], references: [id], onDelete: Cascade)
+  option            Option    @relation(fields: [option_id], references: [id], onDelete: Cascade)
+  user              User?     @relation(fields: [user_id], references: [id], onDelete: SetNull)
+
+  // Unique constraint: one vote per voter per election
+  @@unique([election_id, voter_id])
+  @@map("votes")
+}
+
+// Audit log (append-only)
+model AuditLog {
+  id                String    @id @default(cuid())
+  actor_id          String?
+  actor_role        UserRole?
+  action            String    // e.g., "VOTE_CAST", "ELECTION_OPENED", "USER_ROLE_CHANGED"
+  target_type       String?   // e.g., "ELECTION", "VOTE", "USER"
+  target_id         String?
+  details           Json?
+  created_at        DateTime  @default(now())
+
+  // Relations
+  actor             User?     @relation("ActorLogs", fields: [actor_id], references: [id], onDelete: SetNull)
+  election          Election? @relation(fields: [target_id], references: [id], onDelete: SetNull)
+
+  @@map("audit_logs")
+}
