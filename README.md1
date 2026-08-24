@@ -1,0 +1,29 @@
+## Student Voting Platform - MVP
+
+A secure, role-based electronic voting system for academic institutions.
+
+### 📋 Features
+
+- **Voter Authentication**: ID-based login for voters
+- **Role-Based Access Control**: Support for Voters, Election Officials, Observers, and Admins
+- **Election Management**: Create, edit, and manage elections
+- **Secure Voting**: One vote per voter per election with database-level constraints
+- **Audit Logging**: Complete append-only audit trail
+- **Results & Reporting**: Aggregate results with CSV export
+- **Observer Dashboard**: Real-time election monitoring
+
+### 🛠️ Tech Stack
+
+- **Frontend**: Next.js 14 with TypeScript
+- **Backend**: Next.js API Routes
+- **Database**: PostgreSQL
+- **ORM**: Prisma
+- **Authentication**: JWT + Session-based auth
+- **Testing**: Jest + React Testing Library
+
+### 📦 Installation
+
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd student-voting-platform
