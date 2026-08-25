@@ -1,0 +1,9 @@
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "user": {
+    "id": "user-123",
+    "name": "John Doe",
+    "role": "VOTER",
+    "status": "APPROVED"
+  }
+}
