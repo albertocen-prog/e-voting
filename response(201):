@@ -1,0 +1,10 @@
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "user": {
+    "id": "user-456",
+    "email": "official@school.edu",
+    "name": "Jane Smith",
+    "role": "ELECTION_OFFICIAL",
+    "status": "APPROVED"
+  }
+}
