@@ -1,0 +1,16 @@
+/*
+  Warnings:
+
+  - The migration will rename the following tables to match prisma naming:
+    - `audit_logs` -> `AuditLog`
+    - `ballots` -> `Ballot`
+    - `elections` -> `Election`
+    - `options` -> `Option`
+    - `users` -> `User`
+    - `voter_registrations` -> `VoterRegistration`
+    - `votes` -> `Vote`
+
+*/
+
+-- No actual SQL needed here - just for documentation
+-- Prisma will handle the naming convention based on schema.prisma config
