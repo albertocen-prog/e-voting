@@ -1,12 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { NextApiRequestWithAuth, requireRole } from '@/lib/auth/middleware';
 import { prisma } from '@/lib/db';
-import { createAuditLog } from '@/lib/db/audit';
 
 /**
  * GET /api/elections/[electionId]/voters
- * Get list of voters for an election (ELECTION_OFFICIAL or ADMIN only)
- * Shows voters who have voted and their vote timestamps
+ * Get list of voters for an election
  */
 const handleGet = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
   try {
@@ -24,7 +22,6 @@ const handleGet = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
       return res.status(404).json({ error: 'Election not found' });
     }
 
-    // Get all voter registrations and check if they voted
     const voters = await prisma.voterRegistration.findMany({
       include: {
         user: {
@@ -43,7 +40,6 @@ const handleGet = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
       },
     });
 
-    // Map to include vote status
     const voterList = voters.map((voter) => ({
       voterId: voter.voterId,
       name: voter.user.name,

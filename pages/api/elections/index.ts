@@ -7,20 +7,17 @@ import { parsePaginationParams } from '@/lib/db/pagination';
 /**
  * GET /api/elections
  * List all elections with pagination
- * Returns elections accessible to the authenticated user based on their role
  */
 const handleGet = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
   try {
     const { skip: skipStr, take: takeStr, status } = req.query;
     const { skip, take } = parsePaginationParams(skipStr as string, takeStr as string);
 
-    // Filter by status if provided
     const where: any = {};
     if (status) {
       where.status = status;
     }
 
-    // Observers and voters can only see OPEN elections
     if (req.user?.role === 'OBSERVER' || req.user?.role === 'VOTER') {
       where.status = 'OPEN';
     }
@@ -60,13 +57,12 @@ const handleGet = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
 
 /**
  * POST /api/elections
- * Create a new election (ELECTION_OFFICIAL or ADMIN only)
+ * Create a new election
  */
 const handlePost = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
   try {
     const { title, description, startAt, endAt } = req.body;
 
-    // Validate input
     if (!title || !startAt || !endAt) {
       return res.status(400).json({
         error: 'title, startAt, and endAt are required',
@@ -82,7 +78,6 @@ const handlePost = async (req: NextApiRequestWithAuth, res: NextApiResponse) => 
       });
     }
 
-    // Create election in DRAFT status
     const election = await prisma.election.create({
       data: {
         title,
@@ -94,7 +89,6 @@ const handlePost = async (req: NextApiRequestWithAuth, res: NextApiResponse) => 
       },
     });
 
-    // Log action
     await createAuditLog({
       actorId: req.user!.userId,
       actorRole: req.user!.role as any,

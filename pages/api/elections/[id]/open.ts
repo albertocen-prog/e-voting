@@ -5,8 +5,7 @@ import { createAuditLog } from '@/lib/db/audit';
 
 /**
  * POST /api/elections/[id]/open
- * Open an election for voting (ELECTION_OFFICIAL or ADMIN only)
- * Transitions election from DRAFT to OPEN
+ * Open an election for voting
  */
 const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
   if (req.method !== 'POST') {
@@ -34,7 +33,6 @@ const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
       });
     }
 
-    // Verify election has at least one ballot with options
     const ballotCount = await prisma.ballot.count({
       where: { electionId: id },
     });
@@ -45,22 +43,17 @@ const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
       });
     }
 
-    // Update election status
     const updated = await prisma.election.update({
       where: { id },
       data: { status: 'OPEN' },
     });
 
-    // Log action
     await createAuditLog({
       actorId: req.user!.userId,
       actorRole: req.user!.role as any,
       action: 'election_opened',
       targetType: 'election',
       targetId: id,
-      details: {
-        reason: req.body?.reason || 'No reason provided',
-      },
     });
 
     return res.status(200).json(updated);

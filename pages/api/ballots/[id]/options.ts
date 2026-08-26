@@ -5,7 +5,7 @@ import { createAuditLog } from '@/lib/db/audit';
 
 /**
  * POST /api/ballots/[id]/options
- * Add an option to a ballot (ELECTION_OFFICIAL or ADMIN only)
+ * Add an option to a ballot
  */
 const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
   if (req.method !== 'POST') {
@@ -33,7 +33,6 @@ const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
       return res.status(404).json({ error: 'Ballot not found' });
     }
 
-    // Only allow adding options if election is in DRAFT status
     if (ballot.election.status !== 'DRAFT') {
       return res.status(400).json({
         error: `Cannot add options to ballots in a ${ballot.election.status} election`,
@@ -48,7 +47,6 @@ const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
       },
     });
 
-    // Log action
     await createAuditLog({
       actorId: req.user!.userId,
       actorRole: req.user!.role as any,

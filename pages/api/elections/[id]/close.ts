@@ -5,8 +5,7 @@ import { createAuditLog } from '@/lib/db/audit';
 
 /**
  * POST /api/elections/[id]/close
- * Close an election (end voting) (ELECTION_OFFICIAL or ADMIN only)
- * Transitions election from OPEN to CLOSED
+ * Close an election
  */
 const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
   if (req.method !== 'POST') {
@@ -34,22 +33,17 @@ const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
       });
     }
 
-    // Update election status
     const updated = await prisma.election.update({
       where: { id },
       data: { status: 'CLOSED' },
     });
 
-    // Log action
     await createAuditLog({
       actorId: req.user!.userId,
       actorRole: req.user!.role as any,
       action: 'election_closed',
       targetType: 'election',
       targetId: id,
-      details: {
-        reason: req.body?.reason || 'No reason provided',
-      },
     });
 
     return res.status(200).json(updated);

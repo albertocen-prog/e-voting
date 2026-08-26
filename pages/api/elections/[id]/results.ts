@@ -1,12 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { NextApiRequestWithAuth, requireRole } from '@/lib/auth/middleware';
 import { prisma } from '@/lib/db';
-import { createAuditLog } from '@/lib/db/audit';
 
 /**
  * GET /api/elections/[id]/results
- * Get election results (aggregated vote counts)
- * Accessible to ELECTION_OFFICIAL, OBSERVER, and ADMIN
+ * Get election results
  */
 const handleGet = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
   try {
@@ -38,12 +36,10 @@ const handleGet = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
       return res.status(404).json({ error: 'Election not found' });
     }
 
-    // Only show results if election is closed or user is official/admin
     if (election.status !== 'CLOSED' && req.user?.role !== 'ELECTION_OFFICIAL' && req.user?.role !== 'ADMIN') {
       return res.status(403).json({ error: 'Results not yet available' });
     }
 
-    // Calculate results for each ballot
     const results = await Promise.all(
       election.ballots.map(async (ballot) => {
         const voteCounts = await prisma.vote.groupBy({
@@ -120,12 +116,10 @@ const handleGetCsv = async (req: NextApiRequestWithAuth, res: NextApiResponse) =
       return res.status(404).json({ error: 'Election not found' });
     }
 
-    // Only allow officials and admins to export
     if (req.user?.role !== 'ELECTION_OFFICIAL' && req.user?.role !== 'ADMIN') {
       return res.status(403).json({ error: 'Not authorized' });
     }
 
-    // Build CSV
     let csv = `Election: ${election.title}\n`;
     csv += `Date: ${new Date().toISOString()}\n`;
     csv += `Status: ${election.status}\n\n`;
@@ -150,7 +144,6 @@ const handleGetCsv = async (req: NextApiRequestWithAuth, res: NextApiResponse) =
       csv += '\n';
     }
 
-    // Return as CSV file
     res.setHeader('Content-Type', 'text/csv');
     res.setHeader('Content-Disposition', `attachment; filename="election-results-${id}.csv"`);
     return res.status(200).send(csv);
@@ -165,7 +158,6 @@ const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // Check if CSV export requested
   if (req.url?.includes('.csv')) {
     return handleGetCsv(req, res);
   }

@@ -5,8 +5,7 @@ import { createAuditLog } from '@/lib/db/audit';
 
 /**
  * POST /api/elections/[id]/ballots
- * Create a ballot within an election (ELECTION_OFFICIAL or ADMIN only)
- * Can only create ballots if election is in DRAFT status
+ * Create a ballot
  */
 const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
   if (req.method !== 'POST') {
@@ -33,7 +32,6 @@ const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
       return res.status(404).json({ error: 'Election not found' });
     }
 
-    // Only allow ballot creation if election is DRAFT
     if (election.status !== 'DRAFT') {
       return res.status(400).json({
         error: `Cannot add ballots to a ${election.status} election`,
@@ -48,7 +46,6 @@ const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
       },
     });
 
-    // Log action
     await createAuditLog({
       actorId: req.user!.userId,
       actorRole: req.user!.role as any,

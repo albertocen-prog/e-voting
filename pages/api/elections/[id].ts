@@ -1,7 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { NextApiRequestWithAuth, requireRole, authMiddleware } from '@/lib/auth/middleware';
+import { NextApiRequestWithAuth, authMiddleware } from '@/lib/auth/middleware';
 import { prisma } from '@/lib/db';
-import { createAuditLog } from '@/lib/db/audit';
 
 /**
  * GET /api/elections/[id]
@@ -39,7 +38,6 @@ const handleGet = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
       return res.status(404).json({ error: 'Election not found' });
     }
 
-    // Observers and voters can only see OPEN elections
     if ((req.user?.role === 'OBSERVER' || req.user?.role === 'VOTER') && election.status !== 'OPEN') {
       return res.status(403).json({ error: 'Election not accessible' });
     }
@@ -53,8 +51,7 @@ const handleGet = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
 
 /**
  * PATCH /api/elections/[id]
- * Update election (ELECTION_OFFICIAL or ADMIN only)
- * Cannot modify if election is OPEN
+ * Update election details
  */
 const handlePatch = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
   try {
@@ -73,14 +70,12 @@ const handlePatch = async (req: NextApiRequestWithAuth, res: NextApiResponse) =>
       return res.status(404).json({ error: 'Election not found' });
     }
 
-    // Cannot edit if election is open (unless admin)
     if (election.status === 'OPEN' && req.user?.role !== 'ADMIN') {
       return res.status(403).json({
         error: 'Cannot edit an open election',
       });
     }
 
-    // Validate dates if provided
     if (startAt && endAt) {
       const start = new Date(startAt);
       const end = new Date(endAt);
@@ -101,18 +96,13 @@ const handlePatch = async (req: NextApiRequestWithAuth, res: NextApiResponse) =>
       },
     });
 
-    // Log action
+    const { createAuditLog } = await import('@/lib/db/audit');
     await createAuditLog({
       actorId: req.user!.userId,
       actorRole: req.user!.role as any,
       action: 'election_updated',
       targetType: 'election',
       targetId: id,
-      details: {
-        title: updated.title,
-        startAt: updated.startAt,
-        endAt: updated.endAt,
-      },
     });
 
     return res.status(200).json(updated);
