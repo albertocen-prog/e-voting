@@ -1,0 +1,13 @@
+// Check before insert
+const existingVote = await prisma.vote.findUnique({
+  where: {
+    electionId_voterRegistrationId: {
+      electionId,
+      voterRegistrationId: voterRegistration.id,
+    },
+  },
+});
+
+if (existingVote) {
+  return res.status(409).json({ error: 'Already voted' });
+}
