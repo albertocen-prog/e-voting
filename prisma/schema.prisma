@@ -1,0 +1,159 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  passwordHash String?
+  name      String
+  role      Role     @default(VOTER)
+  status    UserStatus @default(PENDING)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  voterRegistration VoterRegistration?
+  auditLogs         AuditLog[]        @relation("actor")
+  approvedVoters    VoterRegistration[] @relation("approvedBy")
+
+  @@index([email])
+  @@index([role])
+  @@index([status])
+}
+
+model VoterRegistration {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  voterId         String   @unique
+  verificationInfo String?
+  approvedBy      String?
+  approvedAt      DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  approver       User?    @relation("approvedBy", fields: [approvedBy], references: [id])
+
+  votes          Vote[]
+
+  @@index([voterId])
+  @@index([approvedAt])
+}
+
+model Election {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  startAt     DateTime
+  endAt       DateTime
+  status      ElectionStatus @default(DRAFT)
+  createdBy   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  ballots    Ballot[]
+  votes      Vote[]
+  auditLogs  AuditLog[]
+
+  @@index([status])
+  @@index([startAt])
+  @@index([endAt])
+}
+
+model Ballot {
+  id          String   @id @default(cuid())
+  electionId  String
+  title       String
+  type        BallotType @default(SINGLE_CHOICE)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  election    Election @relation(fields: [electionId], references: [id], onDelete: Cascade)
+  options     Option[]
+  votes       Vote[]
+
+  @@index([electionId])
+}
+
+model Option {
+  id        String   @id @default(cuid())
+  ballotId  String
+  label     String
+  metadata  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ballot    Ballot @relation(fields: [ballotId], references: [id], onDelete: Cascade)
+  votes     Vote[]
+
+  @@index([ballotId])
+}
+
+model Vote {
+  id                 String   @id @default(cuid())
+  electionId         String
+  ballotId           String
+  optionId           String
+  voterRegistrationId String
+  createdAt          DateTime @default(now())
+
+  election           Election @relation(fields: [electionId], references: [id], onDelete: Cascade)
+  ballot             Ballot   @relation(fields: [ballotId], references: [id], onDelete: Cascade)
+  option             Option   @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  voterRegistration  VoterRegistration @relation(fields: [voterRegistrationId], references: [id], onDelete: Cascade)
+
+  @@unique([electionId, voterRegistrationId])
+  @@index([electionId])
+  @@index([ballotId])
+  @@index([voterRegistrationId])
+  @@index([createdAt])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String
+  actorRole  Role
+  action     String
+  targetType String
+  targetId   String?
+  details    String?
+  createdAt  DateTime @default(now())
+
+  actor      User     @relation("actor", fields: [actorId], references: [id], onDelete: SetNull)
+  election   Election? @relation(fields: [targetId], references: [id], onDelete: SetNull)
+
+  @@index([actorId])
+  @@index([action])
+  @@index([createdAt])
+  @@index([targetType])
+}
+
+enum Role {
+  VOTER
+  ELECTION_OFFICIAL
+  OBSERVER
+  ADMIN
+}
+
+enum UserStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SUSPENDED
+}
+
+enum ElectionStatus {
+  DRAFT
+  OPEN
+  CLOSED
+  ARCHIVED
+}
+
+enum BallotType {
+  SINGLE_CHOICE
+}

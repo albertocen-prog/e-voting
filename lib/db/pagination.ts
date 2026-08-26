@@ -1,4 +1,4 @@
-// Database utilities and helpers
+// Pagination utilities and helpers
 
 export interface PaginationParams {
   skip?: number;
