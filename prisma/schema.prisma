@@ -39,10 +39,21 @@ model VoterRegistration {
   userId         String   @unique
   voterId        String   @unique
   verificationInfo String?
+
+  // Student identity fields
+  studentFirstName String?
+  studentLastName  String?
+  yearOfStudy      Int?
+  faculty          String?
+
+  // Identification fields
   idType         IdType?
   lookupKey      String?  @db.VarChar(128)
   hashedIdValue  String?
+  encryptedIdValue String?
   idDocumentUrl  String?
+  identificationScanner String?
+
   approvedBy     String?
   approvedAt     DateTime?
   createdAt      DateTime @default(now())
