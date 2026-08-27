@@ -1,0 +1,85 @@
+// voters harderning patch
+ if (!email || !password) {
+   return res
+     .status(400)
+     .json({ error: 'Email and password are required' });
+ }
+
+ // Find user by email
+ const user = await prisma.user.findUnique({
+   where: { email },
+ });
+
+ if (!user) {
+   return res.status(401).json({ error: 'Invalid email or password' });
+ }
+
+ if (!user.passwordHash) {
+   return res.status(401).json({
+     error: 'This account is not configured for email login',
+   });
+ }
+
+ // Verify password
+ const isPasswordValid = await comparePassword(password, user.passwordHash);
+ if (!isPasswordValid) {
+   return res.status(401).json({ error: 'Invalid email or password' });
+ }
+
+ // Check account status
+ if (user.status === 'SUSPENDED') {
+   return res.status(403).json({
+     error: 'Your account has been suspended',
+   });
+ }
+
+ // Generate token
+ const token = generateToken({
+   userId: user.id,
+   email: user.email,
+   role: user.role as any,
+   status: user.status as any,
+ });
+  if (!voterId) {
+   return res.status(400).json({ error: 'Voter ID is required' });
+ }
+
+ // Find voter registration
+ const voterRegistration = await prisma.voterRegistration.findUnique({
+   where: { voterId },
+   include: { user: true },
+ });
+
+ if (!voterRegistration) {
+   return res
+     .status(404)
+     .json({ error: 'Voter ID not found. Please register first.' });
+ }
+
+ const user = voterRegistration.user;
+
+ if (user.status === 'PENDING') {
+   return res.status(403).json({
+     error: 'Your voter registration is pending approval',
+   });
+ }
+
+ if (user.status === 'REJECTED') {
+   return res.status(403).json({
+     error: 'Your voter registration was rejected',
+   });
+ }
+
+ if (user.status === 'SUSPENDED') {
+   return res.status(403).json({
+     error: 'Your account has been suspended',
+   });
+ }
+
+ // Generate token
+ const token = generateToken({
+   userId: user.id,
+   voterId: voterRegistration.voterId,
+   role: user.role as any,
+   status: user.status as any,
+ });
