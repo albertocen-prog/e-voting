@@ -1,0 +1,36 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_DB: testdb
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install deps
+        run: npm ci
+      - name: Setup DB
+        env:
+          DATABASE_URL: 'postgresql://postgres:postgres@localhost:5432/testdb'
+        run: |
+          npx prisma generate
+          npx prisma migrate deploy || true
+      - name: Run unit tests
+        env:
+          ID_LOOKUP_HMAC_SECRET: test-secret
+          AWS_REGION: us-east-1
+          AWS_KMS_KEY_ID: dummy
+        run: npm test
+# Note: for full S3/KMS integration tests, run localstack as a service or mock AWS SDK.
