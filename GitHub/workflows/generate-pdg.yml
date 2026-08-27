@@ -1,0 +1,24 @@
+name: Generate Developer Guide PDF
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pandoc & TeX
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pandoc texlive-xetex
+      - name: Generate PDF
+        run: ./scripts/generate_pdf.sh
+      - name: Upload PDF artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: developer-guide
+          path: docs/DEVELOPER_GUIDE.pdf
