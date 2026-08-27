@@ -38,6 +38,30 @@ enum BallotType {
   SINGLE_CHOICE
   MULTIPLE_CHOICE
 }
+// mode of voters registration 
+enum IdType {
+  NOTIONAL_CARD
+  NATIONAL_ID
+  SCHOOL_ID
+  PASSPORT
+  DRIVER_LICENSE
+}
+
+model VoterRegistration {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  voterId        String   @unique
+  idType         IdType?
+  lookupKey      String?  @db.VarChar(128)
+  hashedIdValue  String?
+  idDocumentUrl  String?
+  approvedAt     DateTime?
+  approvedBy     String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([idType, lookupKey], name: "unique_idtype_lookupkey")
+}
 
 // Users table - handles both voters and staff
 model User {
