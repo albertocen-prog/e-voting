@@ -8,6 +8,15 @@ import { uploadToS3 } from '../../../lib/storage/s3'
 
 export const config = { api: { bodyParser: false } }
 
+const FACULTY_ALLOWLIST = ['Science', 'Arts', 'Engineering', 'Business', 'Law']
+const SCANNER_ALLOWLIST = ['MOBILE_SCAN_V1', 'KIOSK_MODEL_X', 'WEB_CAMERA']
+
+function trimToNull(s) {
+  if (!s && s !== 0) return null
+  const t = String(s).trim()
+  return t === '' ? null : t
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
@@ -20,8 +29,37 @@ export default async function handler(req, res) {
     }
 
     try {
-      const { name, email, idType, idValue } = fields
+      const {
+        name,
+        email,
+        idType,
+        idValue,
+        studentFirstName,
+        studentLastName,
+        yearOfStudy,
+        faculty,
+        identificationScanner,
+      } = fields
+
       if (!idType || !idValue) return res.status(400).json({ error: 'idType and idValue are required' })
+
+      // basic student fields validation
+      const sFirst = trimToNull(studentFirstName)
+      const sLast = trimToNull(studentLastName)
+      const fac = trimToNull(faculty)
+      const scanner = trimToNull(identificationScanner)
+
+      if (sFirst && sFirst.length > 100) return res.status(400).json({ error: 'studentFirstName too long' })
+      if (sLast && sLast.length > 100) return res.status(400).json({ error: 'studentLastName too long' })
+
+      let year = null
+      if (yearOfStudy !== undefined && yearOfStudy !== null && String(yearOfStudy).trim() !== '') {
+        year = parseInt(String(yearOfStudy), 10)
+        if (Number.isNaN(year) || year < 1 || year > 15) return res.status(400).json({ error: 'invalid yearOfStudy' })
+      }
+
+      if (fac && !FACULTY_ALLOWLIST.includes(fac)) return res.status(400).json({ error: 'unknown faculty' })
+      if (scanner && !SCANNER_ALLOWLIST.includes(scanner)) return res.status(400).json({ error: 'unknown identificationScanner' })
 
       const normalized = normalizeId(idValue, idType)
       if (!normalized) return res.status(400).json({ error: 'Invalid idValue' })
@@ -59,6 +97,12 @@ export default async function handler(req, res) {
           hashedIdValue,
           encryptedIdValue,
           idDocumentUrl,
+          // student fields
+          studentFirstName: sFirst,
+          studentLastName: sLast,
+          yearOfStudy: year,
+          faculty: fac,
+          identificationScanner: scanner,
         }
       })
 
