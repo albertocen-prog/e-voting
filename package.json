@@ -1,7 +1,6 @@
 "scripts": {
   "start": "node server.js"
 }
-
 {
   "name": "student-voting-platform",
   "version": "0.1.0",
