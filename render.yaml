@@ -12,10 +12,7 @@ databases:
        key:envGroups:
   - name: shared-app-secrets
     envVars:
-      - key: ID_LOOKUP_HMAC_SECRET
-        value: ${ID_LOOKUP_HMAC_SECRET}
-      - key: ID_DOCUMENT_STORAGE
-        value: ${ID_DOCUMENT_STORAGE}
+      - key: API-ENVIROMENT
         value: production
       # You can still put non-database secrets here (like third-party API keys)
 
