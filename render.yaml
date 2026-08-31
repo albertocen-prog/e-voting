@@ -9,12 +9,7 @@ databases:
    envGroups:
     name: shared-app-secrets
     envVars:
-       key: ID_LOOKUP_HMAC_SECRET=replace-with-long-random-secret
-            ID_DOCUMENT_STORAGE=s3
-            AWS_ACCESS_KEY_ID=...
-            AWS_SECRET_ACCESS_KEY=...
-            AWS_REGION=...
-            S3_BUCKET=your-bucket-name
+       key: API-ENVERIOMENT
         value: production
       # You can still put non-database secrets here (like third-party API keys)
 
