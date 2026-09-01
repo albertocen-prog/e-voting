@@ -17,13 +17,17 @@ jobs:
         with:
           node-version: 18
           cache: 'npm'
-      - name: Clear npm cache aggressively
-        run: |
+      - name: Clear npm cache
+        run:
           npm cache clean --force
           npm cache verify
-          rm -rf node_modules package-lock.json
-      - name: Install dependencies with retry
-        run: npm ci --verbose
+          rm -rf ~/ .npm
+      - name: Install dependencies
+        run: 
+           for i in {1..3} do
+            npm ci $$ break 
+            if [$i it 3]; then sleep 10 fi
+            done
       - name: Generate Prisma client
         run: npx prisma generate
       - name: Lint
@@ -39,3 +43,5 @@ jobs:
             npx prisma migrate deploy || true
             npm test
           fi
+
+  
