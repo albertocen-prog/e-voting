@@ -15,6 +15,9 @@ jobs:
         with:
           node-version: '24'
       - name: Install deps
-        run: npm ci --prefer-offline --no-audit
+        run: |
+          npm cache clean --force
+          npm ci --prefer-offline --no-audit
       - name: Run tests
         run: npm test
+
