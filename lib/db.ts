@@ -4,14 +4,18 @@ import { PrismaClient } from '@prisma/client';
 let prisma: PrismaClient;
 
 if (process.env.NODE_ENV === 'production') {
-  prisma = new PrismaClient();
+  prisma = new PrismaClient({
+    datasourceUrl: process.env.DATABASE_URL,
+  });
 } else {
   // Use a global variable to avoid creating multiple instances in development
   const globalWithPrisma = global as typeof globalThis & {
     prisma?: PrismaClient;
   };
   if (!globalWithPrisma.prisma) {
-    globalWithPrisma.prisma = new PrismaClient();
+    globalWithPrisma.prisma = new PrismaClient({
+      datasourceUrl: process.env.DATABASE_URL,
+    });
   }
   prisma = globalWithPrisma.prisma;
 }
