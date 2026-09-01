@@ -60,8 +60,7 @@ export default async function handler(
       role: user.role as any,
       status: user.status as any,
     });
-    // Set cookie for browser flows
-    setSessionCookie(res, token);
+
     // Log successful login
     await prisma.auditLog.create({
       data: {

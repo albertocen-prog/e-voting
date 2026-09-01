@@ -4,7 +4,7 @@ import { prisma } from '@/lib/db';
 
 /**
  * GET /api/auth/me
- * Get current user information
+ * Get current user information (requires authentication)
  */
 const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
   if (req.method !== 'GET') {
