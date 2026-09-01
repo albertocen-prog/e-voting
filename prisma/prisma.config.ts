@@ -1,5 +1,7 @@
-export const prismaConfig = {
+import { defineConfig } from "@prisma/internals";
+
+export default defineConfig({
   prisma: {
-    seed: './prisma/seed.js',
+    seed: "./prisma/seed.js",
   },
-};
+});
