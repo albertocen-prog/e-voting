@@ -14,10 +14,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - name: Clear npm cache
-        run: npm cache clean --force
-      - name: Remove package-lock.json
-        run: rm -f package-lock.json
       - name: Install deps
         run: npm ci --prefer-offline --no-audit
       - name: Run tests
