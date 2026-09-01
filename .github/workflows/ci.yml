@@ -30,7 +30,7 @@ jobs:
             if [ $i -lt 3 ]; then sleep 5; fi
           done
       - name: Generate Prisma client
-        run: npx prisma generate
+        run: npm run prisma:generate
       - name: Lint
         run: npm run lint --if-present
       - name: Run tests
@@ -45,4 +45,3 @@ jobs:
             npm test
           fi
 
-  
