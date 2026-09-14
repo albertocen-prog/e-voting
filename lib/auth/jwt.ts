@@ -1,3 +1,20 @@
+// 1. Move to top of file
+import jwt from 'jsonwebtoken';
+
+// ... rest of your code ...
+
+// 2. Fixed jwt.sign function call:
+const token = jwt.sign(
+  { 
+    // payload properties
+    status: session.status,
+  },
+  process.env.JWT_SECRET as string,
+  {
+    expiresIn: 60 * 60 * 24, // 24 hours in seconds
+  }
+);
+
 import jwt from 'jsonwebtoken';
 import { AuthSession, DecodedToken } from './types';
 
@@ -16,16 +33,7 @@ export const generateToken = (session: AuthSession): string => {
       role: session.role,
       status: session.status,
     },
-    JWT_SECRET,
-    import jwt, { SignOptions } from 'jsonwebtoken';
-
- const token = jwt.sign(
-  { userId: user.id },
-  process.env.JWT_SECRET as string,
-  {
-    expiresIn: 60 * 60 * 24, // 24 hours in seconds
-  }
-);
+  
 /**
  * Verify and decode a JWT token
  */
