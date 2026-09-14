@@ -3,7 +3,7 @@ const prisma = new PrismaClient({
   datasources: {
     db: {
       url: process.env.DATABASE_URL,generator client {
-  }
+   }
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
