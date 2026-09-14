@@ -1,13 +1,9 @@
-import jwt, { SignOptions } from 'jsonwebtoken';
-import { AuthSession, DecodedToken } from './types'; // update import path if needed
+import jwt from 'jsonwebtoken';
 
+// Ensure JWT_SECRET is loaded properly
 const JWT_SECRET = process.env.JWT_SECRET || 'default_secret';
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '1d';
 
-/**
- * Generate a JWT token for an authenticated session
- */
-export const generateToken = (session: AuthSession): string => {
+export const generateToken = (session: any): string => {
   return jwt.sign(
     {
       userId: session.userId,
@@ -21,4 +17,8 @@ export const generateToken = (session: AuthSession): string => {
       expiresIn: 60 * 60 * 24, // 24 hours in seconds
     }
   );
+};
+
+export const verifyToken = (token: string) => {
+  return jwt.verify(token, JWT_SECRET);
 };
