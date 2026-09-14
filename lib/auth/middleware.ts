@@ -37,7 +37,8 @@ export const authMiddleware = (handler: any) => {
       return handler(req, res);
     } catch (error) {
       return res.status(500).json({ error: 'Internal server error' });
-    }**/
+    **/
+    }
   };
 };
 // Inside your middleware function:
