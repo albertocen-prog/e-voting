@@ -19,18 +19,13 @@ export const generateToken = (session: AuthSession): string => {
     JWT_SECRET,
     import jwt, { SignOptions } from 'jsonwebtoken';
 
-// ✅ Fix: Explicitly cast expiresIn
-const token = jwt.sign(
+ const token = jwt.sign(
   { userId: user.id },
   process.env.JWT_SECRET as string,
   {
-    expiresIn: (process.env.JWT_EXPIRES_IN || '1d') as SignOptions['expiresIn'],
+    expiresIn: 60 * 60 * 24, // 24 hours in seconds
   }
 );
-
-  );
-};
-
 /**
  * Verify and decode a JWT token
  */
