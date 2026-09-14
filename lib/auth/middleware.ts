@@ -33,13 +33,28 @@ export const authMiddleware = (handler: any) => {
         return res.status(401).json({ error: 'Invalid or expired token' });
       }
 
-      req.user = decoded;
+     /** req.user = decoded;
       return handler(req, res);
     } catch (error) {
       return res.status(500).json({ error: 'Internal server error' });
-    }
+    }**/
   };
 };
+// Inside your middleware function:
+try {
+  const token = extractTokenFromHeader(req.headers.authorization);
+  if (!token) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  // ✅ Add 'as unknown as DecodedToken' or 'as DecodedToken'
+  const decoded = verifyToken(token) as unknown as DecodedToken;
+
+  req.user = decoded;
+  return handler(req, res);
+} catch (error) {
+  return res.status(500).json({ error: 'Internal server error' });
+}
 
 /**
  * Role-based authorization middleware
