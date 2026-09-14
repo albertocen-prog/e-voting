@@ -1,10 +1,19 @@
-import jwt from 'jsonwebtoken';
+/**import jwt from 'jsonwebtoken';
 import { DecodedToken } from './types'; // Ensure correct import path for DecodedToken
 
 const JWT_SECRET = process.env.JWT_SECRET || 'default_secret';
 
 export const verifyToken = (token: string): DecodedToken => {
   return jwt.verify(token, JWT_SECRET) as DecodedToken;
+};
+**/
+import jwt from 'jsonwebtoken';
+import { DecodedToken } from './types'; // Adjust relative path as needed
+
+const JWT_SECRET = process.env.JWT_SECRET || 'default_secret';
+
+export const verifyToken = (token: string): DecodedToken => {
+  return jwt.verify(token, JWT_SECRET) as unknown as DecodedToken;
 };
 
     {
