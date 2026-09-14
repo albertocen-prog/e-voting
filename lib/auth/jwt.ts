@@ -1,21 +1,10 @@
-/**import jwt from 'jsonwebtoken';
-import { DecodedToken } from './types'; // Ensure correct import path for DecodedToken
-
-const JWT_SECRET = process.env.JWT_SECRET || 'default_secret';
-
-export const verifyToken = (token: string): DecodedToken => {
-  return jwt.verify(token, JWT_SECRET) as DecodedToken;
-};
-**/
 import jwt from 'jsonwebtoken';
-import { DecodedToken } from './types'; // Adjust relative path as needed
+import { DecodedToken } from './types';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'default_secret';
 
-export const verifyToken = (token: string): DecodedToken => {
-  return jwt.verify(token, JWT_SECRET) as unknown as DecodedToken;
-};
-
+export const signToken = (session: DecodedToken): string => {
+  return jwt.sign(
     {
       userId: session.userId,
       voterId: session.voterId,
@@ -25,18 +14,11 @@ export const verifyToken = (token: string): DecodedToken => {
     },
     JWT_SECRET,
     {
-      expiresIn: 60 * 60 * 24, // 24 hours in seconds
+      expiresIn: 60 * 60 * 24, // 24 hours
     }
   );
 };
 
-export const verifyToken = (token: string) => {
-  return jwt.verify(token, JWT_SECRET);
-};
-
-export const extractTokenFromHeader = (authHeader?: string): string | null => {
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return null;
-  }
-  return authHeader.split(' ')[1] || null;
+export const verifyToken = (token: string): DecodedToken => {
+  return jwt.verify(token, JWT_SECRET) as DecodedToken;
 };
