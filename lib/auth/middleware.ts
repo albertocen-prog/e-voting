@@ -23,7 +23,7 @@ export const authMiddleware = (handler: any) => {
     try {
       const authHeader = req.headers.authorization;
       const token = extractTokenFromHeader(authHeader);
-
+/**
       if (!token) {
         return res.status(401).json({ error: 'No token provided' });
       }
@@ -33,7 +33,7 @@ export const authMiddleware = (handler: any) => {
         return res.status(401).json({ error: 'Invalid or expired token' });
       }
 
-     /** req.user = decoded;
+      req.user = decoded;
       return handler(req, res);
     } catch (error) {
       return res.status(500).json({ error: 'Internal server error' });
