@@ -1,6 +1,5 @@
 import jwt from 'jsonwebtoken';
 
-// Ensure JWT_SECRET is loaded properly
 const JWT_SECRET = process.env.JWT_SECRET || 'default_secret';
 
 export const generateToken = (session: any): string => {
@@ -21,4 +20,11 @@ export const generateToken = (session: any): string => {
 
 export const verifyToken = (token: string) => {
   return jwt.verify(token, JWT_SECRET);
+};
+
+export const extractTokenFromHeader = (authHeader?: string): string | null => {
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return null;
+  }
+  return authHeader.split(' ')[1] || null;
 };
