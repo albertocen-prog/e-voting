@@ -10,13 +10,16 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Enum for user roles
-enum UserRole {
-  VOTER
-  ELECTION_OFFICIAL
-  OBSERVER
-  ADMIN
+model User {
+  id        String   @id @default(uuid())
+  email     String?  @unique
+  name      String
+  password  String   // Add this line
+  role      String   @default("VOTER")
+  status    String   @default("PENDING")
+  // ... rest of your fields
 }
+
 
 // Enum for user status
 enum UserStatus {
