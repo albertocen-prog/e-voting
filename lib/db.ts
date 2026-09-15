@@ -1,23 +1,17 @@
 import { PrismaClient } from '@prisma/client';
 
-// Ensure we only have one instance of Prisma Client
-let prisma: PrismaClient;
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined;
+};
 
-if (process.env.NODE_ENV === 'production') {
-  prisma = new PrismaClient({
-    datasourceUrl: process.env.DATABASE_URL,
+export const prisma =
+  globalForPrisma.prisma ??
+  new PrismaClient({
+    datasources: {
+      db: {
+        url: process.env.DATABASE_URL,
+      },
+    },
   });
-} else {
-  // Use a global variable to avoid creating multiple instances in development
-  const globalWithPrisma = global as typeof globalThis & {
-    prisma?: PrismaClient;
-  };
-  if (!globalWithPrisma.prisma) {
-    globalWithPrisma.prisma = new PrismaClient({
-      datasourceUrl: process.env.DATABASE_URL,
-    });
-  }
-  prisma = globalWithPrisma.prisma;
-}
 
-export { prisma };
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
