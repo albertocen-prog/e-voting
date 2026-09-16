@@ -18,7 +18,7 @@ envGroups:
 
 services:
   - type: web
-    name: e_voting 
+    name: Evotingdb
     env: node
     region: virginia # Must match database region
     buildCommand: npx prisma generate && npm run build
