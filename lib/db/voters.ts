@@ -11,11 +11,11 @@ export interface VoterRegistrationRequest {
 
 export interface VoterRegistrationWithUser {
   id: string;
-  userId: string;
-  voterId: string;
-  verificationInfo?: string;
-  approvedAt?: Date;
-  createdAt: Date;
+  user_id: string;
+  voter_id: string;
+  verification_info?: string;
+  approved_at?: Date;
+  created_at: Date;
   user: {
     id: string;
     email?: string;
@@ -34,7 +34,7 @@ export const registerVoter = async ({
 }: VoterRegistrationRequest) => {
   // Check if voter ID already exists
   const existing = await prisma.voterRegistration.findUnique({
-    where: { voterId },
+    where: { voter_id: voterId },
   });
 
   if (existing) {
@@ -49,7 +49,7 @@ export const registerVoter = async ({
     data: {
       email: `voter-${voterId}@e-elct.local`,
       name: voterId,
-      password: hashedPassword, // Store hashed password
+      password_hash: hashedPassword, // Mapped to password_hash
       role: 'VOTER',
       status: 'PENDING',
     },
@@ -58,9 +58,9 @@ export const registerVoter = async ({
   // Create voter registration
   const registration = await prisma.voterRegistration.create({
     data: {
-      userId: user.id,
-      voterId,
-      verificationInfo,
+      user_id: user.id,
+      voter_id: voterId,
+      verification_info: verificationInfo,
     },
     include: { user: true },
   });
@@ -73,26 +73,26 @@ export const registerVoter = async ({
  */
 export const approveVoter = async (voterId: string, approvedBy: string) => {
   const registration = await prisma.voterRegistration.findUnique({
-    where: { voterId },
+    where: { voter_id: voterId },
     include: { user: true },
   });
 
-  if (!registration) {
+  if (!registration || !registration.user_id) {
     throw new Error('Voter registration not found');
   }
 
   // Update user status to APPROVED
   const updated = await prisma.user.update({
-    where: { id: registration.userId },
+    where: { id: registration.user_id },
     data: { status: 'APPROVED' },
   });
 
   // Update registration with approval details
   await prisma.voterRegistration.update({
-    where: { voterId },
+    where: { voter_id: voterId },
     data: {
-      approvedBy,
-      approvedAt: new Date(),
+      approved_by: approvedBy,
+      approved_at: new Date(),
     },
   });
 
@@ -104,17 +104,17 @@ export const approveVoter = async (voterId: string, approvedBy: string) => {
  */
 export const rejectVoter = async (voterId: string) => {
   const registration = await prisma.voterRegistration.findUnique({
-    where: { voterId },
+    where: { voter_id: voterId },
     include: { user: true },
   });
 
-  if (!registration) {
+  if (!registration || !registration.user_id) {
     throw new Error('Voter registration not found');
   }
 
   // Update user status to REJECTED
   const updated = await prisma.user.update({
-    where: { id: registration.userId },
+    where: { id: registration.user_id },
     data: { status: 'REJECTED' },
   });
 
@@ -140,7 +140,7 @@ export const getPendingVoters = async (skip = 0, take = 20) => {
         },
       },
     },
-    orderBy: { createdAt: 'asc' },
+    orderBy: { created_at: 'asc' },
     skip,
     take,
   });
