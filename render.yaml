@@ -2,7 +2,7 @@
 databases:
   - name: production-db 
     plan: free
-    databaseName: DATABASE_NAME
+    databaseName: E_voting_db
     user: DATABASE_USERNAME 
     region: virginia # Explicitly set region so DB and services match
 
