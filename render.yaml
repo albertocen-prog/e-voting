@@ -1,9 +1,9 @@
 # Render service configuration
 databases:
-  - name: production-db 
+  - name: database_db 
     plan: free
-    databaseName: E_voting_db
-    user: DATABASE_USERNAME 
+    databaseName: production_db 
+    user: db_user
     region: virginia # Explicitly set region so DB and services match
 
 envGroups:
@@ -11,6 +11,10 @@ envGroups:
     envVars:
       - key: API_KEY 
         value: production
+      - key: APP_REGION 
+        value: virginia 
+      - key: SESSION_SECRET
+        generateValue: true 
 
 services:
   - type: web
@@ -25,6 +29,10 @@ services:
         fromDatabase:
           name: production-db
           property: connectionString
+      - key: JWT_SECRET 
+        generateValue: true 
+        key: THIRD_PARTY_API_KEY
+        sync: false 
 
   - type: worker
     name: background-worker
