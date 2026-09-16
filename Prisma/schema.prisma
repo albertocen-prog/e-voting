@@ -1,5 +1,4 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// This is your Prisma schema file
 
 generator client {
   provider = "prisma-client-js"
@@ -10,22 +9,22 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        String   @id @default(uuid())
-  email     String?  @unique
-  name      String
-  password  String   // Add this line
-  role      String   @default("VOTER")
-  status    String   @default("PENDING")
-  // ... rest of your fields
-}
-
-
 // Enum for user status
 enum UserStatus {
+  PENDING
   ACTIVE
+  APPROVED
   INACTIVE
+  REJECTED
   SUSPENDED
+}
+
+// Enum for user roles
+enum UserRole {
+  ADMIN
+  VOTER
+  OFFICIAL
+  OBSERVER
 }
 
 // Enum for election status
@@ -41,7 +40,8 @@ enum BallotType {
   SINGLE_CHOICE
   MULTIPLE_CHOICE
 }
-// mode of voters registration 
+
+// Mode of voters registration 
 enum IdType {
   NOTIONAL_CARD
   NATIONAL_ID
@@ -50,37 +50,21 @@ enum IdType {
   DRIVER_LICENSE
 }
 
-model VoterRegistration {
-  id             String   @id @default(cuid())
-  userId         String   @unique
-  voterId        String   @unique
-  idType         IdType?
-  lookupKey      String?  @db.VarChar(128)
-  hashedIdValue  String?
-  idDocumentUrl  String?
-  approvedAt     DateTime?
-  approvedBy     String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-
-  @@unique([idType, lookupKey], name: "unique_idtype_lookupkey")
-}
-
 // Users table - handles both voters and staff
 model User {
-  id                String    @id @default(cuid())
-  email             String?   @unique
-  password_hash     String?
-  name              String
-  role              UserRole  @default(VOTER)
-  status            UserStatus @default(ACTIVE)
-  created_at        DateTime  @default(now())
-  updated_at        DateTime  @updatedAt
+  id            String     @id @default(cuid())
+  email         String?    @unique
+  name          String
+  password_hash String?
+  role          UserRole   @default(VOTER)
+  status        UserStatus @default(PENDING)
+  created_at    DateTime   @default(now())
+  updated_at    DateTime   @updatedAt
 
   // Relations
   voter_registration VoterRegistration?
-  created_elections  Election[] @relation("CreatedBy")
-  audit_logs         AuditLog[] @relation("ActorLogs")
+  created_elections  Election[]          @relation("CreatedBy")
+  audit_logs         AuditLog[]          @relation("ActorLogs")
   votes              Vote[]
 
   @@map("users")
@@ -91,86 +75,91 @@ model VoterRegistration {
   id                String    @id @default(cuid())
   user_id           String?   @unique
   voter_id          String    @unique
+  idType            IdType?
+  lookupKey         String?   @db.VarChar(128)
+  hashedIdValue     String?
+  idDocumentUrl     String?
   verification_info String?
-  approved_by       String?
   approved_at       DateTime?
+  approved_by       String?
   created_at        DateTime  @default(now())
   updated_at        DateTime  @updatedAt
 
   // Relations
-  user              User?     @relation(fields: [user_id], references: [id], onDelete: SetNull)
+  user User? @relation(fields: [user_id], references: [id], onDelete: SetNull)
 
+  @@unique([idType, lookupKey], name: "unique_idtype_lookupkey")
   @@map("voter_registrations")
 }
 
 // Elections
 model Election {
-  id                String    @id @default(cuid())
-  title             String
-  description       String?
-  start_at          DateTime
-  end_at            DateTime
-  status            ElectionStatus @default(DRAFT)
-  created_by        String
-  created_at        DateTime  @default(now())
-  updated_at        DateTime  @updatedAt
+  id          String         @id @default(cuid())
+  title       String
+  description String?
+  start_at    DateTime
+  end_at      DateTime
+  status      ElectionStatus @default(DRAFT)
+  created_by  String
+  created_at  DateTime       @default(now())
+  updated_at  DateTime       @updatedAt
 
   // Relations
-  creator           User      @relation("CreatedBy", fields: [created_by], references: [id], onDelete: Cascade)
-  ballots           Ballot[]
-  votes             Vote[]
-  audit_logs        AuditLog[]
+  creator    User       @relation("CreatedBy", fields: [created_by], references: [id], onDelete: Cascade)
+  ballots    Ballot[]
+  votes      Vote[]
+  audit_logs AuditLog[]
 
   @@map("elections")
 }
 
 // Ballots (one per election, but can have multiple options)
 model Ballot {
-  id                String    @id @default(cuid())
-  election_id       String
-  title             String
-  type              BallotType @default(SINGLE_CHOICE)
-  created_at        DateTime  @default(now())
-  updated_at        DateTime  @updatedAt
+  id          String     @id @default(cuid())
+  election_id String
+  title       String
+  type        BallotType @default(SINGLE_CHOICE)
+  created_at  DateTime   @default(now())
+  updated_at  DateTime   @updatedAt
 
   // Relations
-  election          Election  @relation(fields: [election_id], references: [id], onDelete: Cascade)
-  options           Option[]
-  votes             Vote[]
+  election Election @relation(fields: [election_id], references: [id], onDelete: Cascade)
+  options  Option[]
+  votes    Vote[]
 
   @@map("ballots")
 }
 
 // Options/Candidates
 model Option {
-  id                String    @id @default(cuid())
-  ballot_id         String
-  label             String
-  metadata          Json?
-  created_at        DateTime  @default(now())
+  id         String   @id @default(cuid())
+  ballot_id  String
+  label      String
+  metadata   Json?
+  created_at DateTime @default(now())
 
   // Relations
-  ballot            Ballot    @relation(fields: [ballot_id], references: [id], onDelete: Cascade)
-  votes             Vote[]
+  ballot Ballot @relation(fields: [ballot_id], references: [id], onDelete: Cascade)
+  votes  Vote[]
 
   @@map("options")
 }
 
 // Votes (traceable to voter_id for auditability)
 model Vote {
-  id                String    @id @default(cuid())
-  election_id       String
-  ballot_id         String
-  option_id         String
-  voter_id          String
-  user_id           String?
-  created_at        DateTime  @default(now())
+  id          String   @id @default(cuid())
+  election_id String
+  ballot_id   String
+  option_id   String
+  voter_id    String
+  user_id     String?
+  created_at  DateTime @default(now())
 
   // Relations
-  election          Election  @relation(fields: [election_id], references: [id], onDelete: Cascade)
-  ballot            Ballot    @relation(fields: [ballot_id], references: [id], onDelete: Cascade)
-  option            Option    @relation(fields: [option_id], references: [id], onDelete: Cascade)
-  user              User?     @relation(fields: [user_id], references: [id], onDelete: SetNull)
+  election Election @relation(fields: [election_id], references: [id], onDelete: Cascade)
+  ballot   Ballot   @relation(fields: [ballot_id], references: [id], onDelete: Cascade)
+  option   Option   @relation(fields: [option_id], references: [id], onDelete: Cascade)
+  user     User?    @relation(fields: [user_id], references: [id], onDelete: SetNull)
 
   // Unique constraint: one vote per voter per election
   @@unique([election_id, voter_id])
@@ -179,18 +168,18 @@ model Vote {
 
 // Audit log (append-only)
 model AuditLog {
-  id                String    @id @default(cuid())
-  actor_id          String?
-  actor_role        UserRole?
-  action            String    // e.g., "VOTE_CAST", "ELECTION_OPENED", "USER_ROLE_CHANGED"
-  target_type       String?   // e.g., "ELECTION", "VOTE", "USER"
-  target_id         String?
-  details           Json?
-  created_at        DateTime  @default(now())
+  id          String    @id @default(cuid())
+  actor_id    String?
+  actor_role  UserRole?
+  action      String // e.g., "VOTE_CAST", "ELECTION_OPENED", "USER_ROLE_CHANGED"
+  target_type String? // e.g., "ELECTION", "VOTE", "USER"
+  target_id   String?
+  details     Json?
+  created_at  DateTime  @default(now())
 
   // Relations
-  actor             User?     @relation("ActorLogs", fields: [actor_id], references: [id], onDelete: SetNull)
-  election          Election? @relation(fields: [target_id], references: [id], onDelete: SetNull)
+  actor    User?     @relation("ActorLogs", fields: [actor_id], references: [id], onDelete: SetNull)
+  election Election? @relation(fields: [target_id], references: [id], onDelete: SetNull)
 
   @@map("audit_logs")
 }
