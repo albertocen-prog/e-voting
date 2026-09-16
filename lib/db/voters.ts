@@ -49,7 +49,7 @@ export const registerVoter = async ({
     data: {
       email: `voter-${voterId}@e-elct.local`,
       name: voterId,
-      password_hash: hashedPassword,
+      passwordHash: hashedPassword,
       role: 'VOTER',
       status: 'PENDING',
     },
