@@ -1,25 +1,24 @@
-// prisma/schema.prisma
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 generator client {
   provider = "prisma-client-js"
 }
 
-
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
+  id           String     @id @default(cuid())
+  email        String     @unique
   passwordHash String?
-  name      String
-  role      Role     @default(VOTER)
-  status    UserStatus @default(PENDING)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  name         String
+  role         Role       @default(VOTER)
+  status       UserStatus @default(PENDING)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
 
   voterRegistration VoterRegistration?
-  auditLogs         AuditLog[]        @relation("actor")
+  auditLogs         AuditLog[]          @relation("actor")
   approvedVoters    VoterRegistration[] @relation("approvedBy")
 
   @@index([email])
@@ -28,7 +27,7 @@ model User {
 }
 
 enum IdType {
-  NOTIONAL_CARD
+  NATIONAL_CARD
   NATIONAL_ID
   SCHOOL_ID
   PASSPORT
@@ -36,34 +35,32 @@ enum IdType {
 }
 
 model VoterRegistration {
-  id             String   @id @default(cuid())
-  userId         String   @unique
-  voterId        String   @unique
-  verificationInfo String?
+  id                   String   @id @default(cuid())
+  userId               String   @unique
+  voterId              String   @unique
+  verificationInfo     String?
 
-  // Student identity fields
-  studentFirstName String?
-  studentLastName  String?
-  yearOfStudy      Int?
-  faculty          String?
+  studentFirstName     String?
+  studentLastName      String?
+  yearOfStudy          Int?
+  faculty              String?
 
-  // Identification fields
-  idType         IdType?
-  lookupKey      String?  @db.VarChar(128)
-  hashedIdValue  String?
-  encryptedIdValue String?
-  idDocumentUrl  String?
+  idType               IdType?
+  lookupKey            String?  @db.VarChar(128)
+  hashedIdValue        String?
+  encryptedIdValue     String?
+  idDocumentUrl        String?
   identificationScanner String?
 
-  approvedBy     String?
-  approvedAt     DateTime?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  approvedBy           String?
+  approvedAt           DateTime?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
 
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  approver       User?    @relation("approvedBy", fields: [approvedBy], references: [id])
-
-  votes          Vote[]
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  approver             User?    @relation("approvedBy", fields: [approvedBy], references: [id])
+  
+  participations       BallotParticipation[]
 
   @@index([voterId])
   @@index([approvedAt])
@@ -71,19 +68,19 @@ model VoterRegistration {
 }
 
 model Election {
-  id          String   @id @default(cuid())
+  id          String         @id @default(cuid())
   title       String
   description String?
   startAt     DateTime
   endAt       DateTime
   status      ElectionStatus @default(DRAFT)
   createdBy   String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
 
-  ballots    Ballot[]
-  votes      Vote[]
-  auditLogs  AuditLog[]
+  ballots     Ballot[]
+  votes       Vote[]
+  auditLogs   AuditLog[]
 
   @@index([status])
   @@index([startAt])
@@ -91,16 +88,17 @@ model Election {
 }
 
 model Ballot {
-  id          String   @id @default(cuid())
+  id          String     @id @default(cuid())
   electionId  String
   title       String
   type        BallotType @default(SINGLE_CHOICE)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 
-  election    Election @relation(fields: [electionId], references: [id], onDelete: Cascade)
-  options     Option[]
-  votes       Vote[]
+  election       Election              @relation(fields: [electionId], references: [id], onDelete: Cascade)
+  options        Option[]
+  votes          Vote[]
+  participations BallotParticipation[]
 
   @@index([electionId])
 }
@@ -113,49 +111,62 @@ model Option {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  ballot    Ballot @relation(fields: [ballotId], references: [id], onDelete: Cascade)
+  ballot    Ballot   @relation(fields: [ballotId], references: [id], onDelete: Cascade)
   votes     Vote[]
 
   @@index([ballotId])
 }
 
-model Vote {
-  id                 String   @id @default(cuid())
-  electionId         String
-  ballotId           String
-  optionId           String
+// Tracks who voted to prevent double voting without storing their specific choice
+model BallotParticipation {
+  id                  String   @id @default(cuid())
+  ballotId            String
   voterRegistrationId String
-  createdAt          DateTime @default(now())
+  votedAt             DateTime @default(now())
 
-  election           Election @relation(fields: [electionId], references: [id], onDelete: Cascade)
-  ballot             Ballot   @relation(fields: [ballotId], references: [id], onDelete: Cascade)
-  option             Option   @relation(fields: [optionId], references: [id], onDelete: Cascade)
-  voterRegistration  VoterRegistration @relation(fields: [voterRegistrationId], references: [id], onDelete: Cascade)
+  ballot              Ballot            @relation(fields: [ballotId], references: [id], onDelete: Cascade)
+  voterRegistration   VoterRegistration @relation(fields: [voterRegistrationId], references: [id], onDelete: Cascade)
 
-  @@unique([electionId, voterRegistrationId])
+  @@unique([ballotId, voterRegistrationId])
+  @@index([voterRegistrationId])
+}
+
+// Stores actual choices anonymously
+model Vote {
+  id         String   @id @default(cuid())
+  electionId String
+  ballotId   String
+  optionId   String
+  createdAt  DateTime @default(now())
+
+  election   Election @relation(fields: [electionId], references: [id], onDelete: Cascade)
+  ballot     Ballot   @relation(fields: [ballotId], references: [id], onDelete: Cascade)
+  option     Option   @relation(fields: [optionId], references: [id], onDelete: Cascade)
+
   @@index([electionId])
   @@index([ballotId])
-  @@index([voterRegistrationId])
-  @@index([createdAt])
+  @@index([optionId])
 }
 
 model AuditLog {
   id         String   @id @default(cuid())
-  actorId    String
+  actorId    String?
   actorRole  Role
   action     String
   targetType String
   targetId   String?
+  electionId String?
   details    String?
   createdAt  DateTime @default(now())
 
-  actor      User     @relation("actor", fields: [actorId], references: [id], onDelete: SetNull)
-  election   Election? @relation(fields: [targetId], references: [id], onDelete: SetNull)
+  actor      User?     @relation("actor", fields: [actorId], references: [id], onDelete: SetNull)
+  election   Election? @relation(fields: [electionId], references: [id], onDelete: SetNull)
 
   @@index([actorId])
   @@index([action])
   @@index([createdAt])
   @@index([targetType])
+  @@index([electionId])
 }
 
 enum Role {
