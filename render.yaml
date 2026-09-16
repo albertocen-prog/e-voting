@@ -1,9 +1,10 @@
-# Render service configuration (cleaned)
+# Render service configuration
 databases:
   - name: production-db
     plan: free
     databaseName: my_app_db
     user: db_admin
+    region: oregon # Explicitly set region so DB and services match
 
 envGroups:
   - name: shared-app-secrets
@@ -13,13 +14,13 @@ envGroups:
 
 services:
   - type: web
-    name: main-web-app
+    name: e_voting 
     env: node
-    buildCommand: npm ci && npm run build
+    region: oregon # Must match database region
+    buildCommand: npm ci && npx prisma generate && npm run build
     startCommand: npm start
-    envGroups:
-      - name: shared-app-secrets
     envVars:
+      - fromGroup: shared-app-secrets # Correct syntax for environment groups
       - key: DATABASE_URL
         fromDatabase:
           name: production-db
@@ -28,10 +29,10 @@ services:
   - type: worker
     name: background-worker
     env: node
+    region: oregon
     startCommand: node worker.js
-    envGroups:
-      - name: shared-app-secrets
     envVars:
+      - fromGroup: shared-app-secrets # Correct syntax for environment groups
       - key: DATABASE_URL
         fromDatabase:
           name: production-db
