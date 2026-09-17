@@ -1,6 +1,7 @@
 // Session utilities for managing user sessions
 import { NextApiRequest, NextApiResponse } from 'next'
-import { TokenPayload } from './jwt'
+import { CorrectTypeName as TokenPayload } from './jwt';
+/*import { TokenPayload } from './jwt' */
 import jwt from 'jsonwebtoken'
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
