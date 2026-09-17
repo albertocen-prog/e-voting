@@ -1,13 +1,16 @@
-// Session utilities for managing user sessions
 import { NextApiRequest, NextApiResponse } from 'next'
-import { DecodedToken } from './jwt';
-export function verifySession(token: string): DecodedToken | null {
-  // ... logic using DecodedToken
-}
-//import { DecodedToken } from './jwt' 
 import jwt from 'jsonwebtoken'
+import { TokenPayload } from './jwt'
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
+
+export function verifySession(token: string): TokenPayload | null {
+  try {
+    return jwt.verify(token, JWT_SECRET) as TokenPayload
+  } catch {
+    return null
+  }
+}
 
 export function setSessionCookie(res: NextApiResponse, token: string): void {
   res.setHeader(
@@ -36,7 +39,7 @@ export function getSessionFromRequest(req: NextApiRequest): TokenPayload | null 
     if (!authToken) return null
 
     return jwt.verify(authToken, JWT_SECRET) as TokenPayload
-  } catch (error) {
+  } catch {
     return null
   }
 }
