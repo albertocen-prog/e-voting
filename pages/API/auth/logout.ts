@@ -1,7 +1,7 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
+import type { NextApiResponse } from 'next';
 import { NextApiRequestWithAuth, authMiddleware } from '@/lib/auth/middleware';
 import { prisma } from '@/lib/db';
-import { Role } from '@prisma/client'; // Import your Prisma Role enum if applicable
+import { Role } from '@prisma/client';
 
 /**
  * POST /api/auth/logout
@@ -22,7 +22,7 @@ const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
     await prisma.auditLog.create({
       data: {
         actorId: req.user.userId,
-        actorRole: req.user.role as Role, 
+        actorRole: req.user.role as Role,
         action: 'logout',
         targetType: 'user',
         targetId: req.user.userId,
