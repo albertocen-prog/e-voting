@@ -30,7 +30,7 @@ export interface VoterRegistrationWithUser {
 export const registerVoter = async ({
   voterId,
   password,
-  verificationMode: data
+  verificationMode
 }: VoterRegistrationRequest) => {
   // Check if voter ID already exists
   const existing = await prisma.voterRegistration.findUnique({
@@ -54,17 +54,18 @@ export const registerVoter = async ({
       status: 'PENDING',
     },
   });
-  return { success: true, user }; 
-  // Create voter registration
+
+  // Create voter registration tied to the created user
   const registration = await prisma.voterRegistration.create({
     data: {
-      userId, // Corrected from undefined 'userId'
-      verificationMode: verificationMode, // Corrected parameter reference
+      voterId,
+      userId: user.id,
+      verificationMode,
     },
     include: { user: true },
   });
 
-  return registration;
+  return { success: true, user, registration };
 };
 
 /**
@@ -87,10 +88,11 @@ export const approveVoter = async (voterId: string, approvedBy: string) => {
   });
 
   // Update registration with approval details
+  // Note: Adjust 'approvedById' to match your schema field name if it differs from 'approvedBy'
   await prisma.voterRegistration.update({
     where: { voterId },
     data: {
-      approvedBy: approvedBy,
+      approvedBy,
       approvedAt: new Date(),
     },
   });
