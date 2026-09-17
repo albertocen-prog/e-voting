@@ -1,6 +1,12 @@
 // If defined as 'enum Role' in schema.prisma:
 import { Role } from '@prisma/client';
 
+export interface JWTPayload {
+  userId: string;
+  role: Role;
+}
+
+
 // Or if defined as 'enum UserRole' in schema.prisma:
 import { UserRole } from '@prisma/client';
 
