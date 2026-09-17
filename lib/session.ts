@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import jwt from 'jsonwebtoken'
-import { TokenPayload } from './jwt'
+import { DecodedToken as TokenPayload} from './jwt'
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
 
