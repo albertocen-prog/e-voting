@@ -1,7 +1,7 @@
 //import type { NextApiRequest, NextApiResponse } from 'next';
 import type { NextApiResponse } from 'next';
 import { NextApiRequestWithAuth, authMiddleware } from '@/lib/auth/middleware';
-
+import { prisma } from '@/lib/db';
 /**
  * POST /api/auth/logout
  * Logout endpoint (primarily client-side token removal)
