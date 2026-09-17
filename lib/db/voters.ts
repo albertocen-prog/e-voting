@@ -58,9 +58,9 @@ export const registerVoter = async ({
   // Create voter registration
   const registration = await prisma.voterRegistration.create({
     data: {
-      userId: user.id,
-      voterId,
-      verificationMode: data, // Maps local camelCase variable to database snake_case column
+      userId,
+      password,
+      verificationMode, // Maps local camelCase variable to database snake_case column
     },
     include: { user: true },
   });
