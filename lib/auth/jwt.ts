@@ -1,13 +1,7 @@
 import jwt from 'jsonwebtoken';
 import type { Role } from '@prisma/client'; 
-
-export interface DecodedToken {
-  userId: string;
-  voterId?: string;
-  email?: string;
-  role: Role;
-  status?: string;
-}
+export * from './types';
+export { signToken, verifyToken } from './jwt';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'default_secret';
 
