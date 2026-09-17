@@ -1,4 +1,4 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
+import type { NextApiResponse } from 'next'; // Removed unused NextApiRequest
 import { NextApiRequestWithAuth, requireRole } from '@/lib/auth/middleware';
 import { prisma } from '@/lib/db';
 
@@ -61,7 +61,7 @@ const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
       staff: staffCount,
       recentActivity: recentLogs.map((log) => ({
         action: log.action,
-        actor: log.actor.name,
+        actor: log.actor?.name ?? 'System',
         timestamp: log.createdAt,
       })),
     });
@@ -71,4 +71,4 @@ const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
   }
 };
 
-export default requireRole('ADMIN')(handler);
+export default requireRole('ADMIN')(handler as any);
