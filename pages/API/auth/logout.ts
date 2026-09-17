@@ -1,4 +1,4 @@
-import type { NextApiResponse } from 'next';
+import type { NextApiRequest, NextApiResponse } from 'next';
 import { NextApiRequestWithAuth, authMiddleware } from '@/lib/auth/middleware';
 import { prisma } from '@/lib/db';
 import { Role } from '@prisma/client'; // Import your Prisma Role enum if applicable
