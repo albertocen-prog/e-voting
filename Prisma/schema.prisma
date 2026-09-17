@@ -1,5 +1,3 @@
-// This is your Prisma schema file
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,7 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Enum for user status
 enum UserStatus {
   PENDING
   ACTIVE
@@ -19,7 +16,6 @@ enum UserStatus {
   SUSPENDED
 }
 
-// Enum for user roles
 enum UserRole {
   ADMIN
   VOTER
@@ -27,7 +23,6 @@ enum UserRole {
   OBSERVER
 }
 
-// Enum for election status
 enum ElectionStatus {
   DRAFT
   OPEN
@@ -35,22 +30,19 @@ enum ElectionStatus {
   ARCHIVED
 }
 
-// Enum for ballot type
 enum BallotType {
   SINGLE_CHOICE
   MULTIPLE_CHOICE
 }
 
-// Mode of voters registration ID types
 enum IdType {
-  NOTIONAL_CARD
+  NATIONAL_CARD
   NATIONAL_ID
   SCHOOL_ID
   PASSPORT
   DRIVER_LICENSE
 }
 
-// Mode / Method used for voter verification
 enum VerificationMode {
   MANUAL_ADMIN_REVIEW
   ID_DOCUMENT_OCR
@@ -60,7 +52,6 @@ enum VerificationMode {
   THIRD_PARTY_KYC
 }
 
-// Users table - handles both voters and staff
 model User {
   id            String     @id @default(cuid())
   email         String?    @unique
@@ -71,7 +62,6 @@ model User {
   created_at    DateTime   @default(now())
   updated_at    DateTime   @updatedAt
 
-  // Relations
   voter_registration VoterRegistration?
   created_elections  Election[]          @relation("CreatedBy")
   audit_logs         AuditLog[]          @relation("ActorLogs")
@@ -80,7 +70,6 @@ model User {
   @@map("users")
 }
 
-// Voter registration tracking
 model VoterRegistration {
   id                String            @id @default(cuid())
   user_id           String?           @unique
@@ -90,9 +79,8 @@ model VoterRegistration {
   hashedIdValue     String?
   idDocumentUrl     String?
   
-  // Verification details
   verificationMode  VerificationMode?
-  verificationData  Json?             // Stores KYC API responses, confidence scores, OTP logs, etc.
+  verificationData  Json?             
   verifiedAt        DateTime?
 
   approved_at       DateTime?
@@ -100,14 +88,12 @@ model VoterRegistration {
   created_at        DateTime          @default(now())
   updated_at        DateTime          @updatedAt
 
-  // Relations
   user User? @relation(fields: [user_id], references: [id], onDelete: SetNull)
 
   @@unique([idType, lookupKey], name: "unique_idtype_lookupkey")
   @@map("voter_registrations")
 }
 
-// Elections
 model Election {
   id          String         @id @default(cuid())
   title       String
@@ -119,16 +105,14 @@ model Election {
   created_at  DateTime       @default(now())
   updated_at  DateTime       @updatedAt
 
-  // Relations
   creator    User       @relation("CreatedBy", fields: [created_by], references: [id], onDelete: Cascade)
   ballots    Ballot[]
   votes      Vote[]
-  audit_logs AuditLog[]
+  audit_logs AuditLog[] @relation("ElectionAuditLogs")
 
   @@map("elections")
 }
 
-// Ballots (one per election, but can have multiple options)
 model Ballot {
   id          String     @id @default(cuid())
   election_id String
@@ -137,7 +121,6 @@ model Ballot {
   created_at  DateTime   @default(now())
   updated_at  DateTime   @updatedAt
 
-  // Relations
   election Election @relation(fields: [election_id], references: [id], onDelete: Cascade)
   options  Option[]
   votes    Vote[]
@@ -145,7 +128,6 @@ model Ballot {
   @@map("ballots")
 }
 
-// Options/Candidates
 model Option {
   id         String   @id @default(cuid())
   ballot_id  String
@@ -153,14 +135,12 @@ model Option {
   metadata   Json?
   created_at DateTime @default(now())
 
-  // Relations
   ballot Ballot @relation(fields: [ballot_id], references: [id], onDelete: Cascade)
   votes  Vote[]
 
   @@map("options")
 }
 
-// Votes (traceable to voter_id for auditability)
 model Vote {
   id          String   @id @default(cuid())
   election_id String
@@ -170,31 +150,28 @@ model Vote {
   user_id     String?
   created_at  DateTime @default(now())
 
-  // Relations
   election Election @relation(fields: [election_id], references: [id], onDelete: Cascade)
   ballot   Ballot   @relation(fields: [ballot_id], references: [id], onDelete: Cascade)
   option   Option   @relation(fields: [option_id], references: [id], onDelete: Cascade)
   user     User?    @relation(fields: [user_id], references: [id], onDelete: SetNull)
 
-  // Unique constraint: one vote per voter per election
   @@unique([election_id, voter_id])
   @@map("votes")
 }
 
-// Audit log (append-only)
 model AuditLog {
   id          String    @id @default(cuid())
   actor_id    String?
   actor_role  UserRole?
-  action      String // e.g., "VOTE_CAST", "ELECTION_OPENED", "USER_ROLE_CHANGED"
-  target_type String? // e.g., "ELECTION", "VOTE", "USER"
+  action      String    
+  target_type String?   
   target_id   String?
+  election_id String?   // Explicit key for Election relation
   details     Json?
   created_at  DateTime  @default(now())
 
-  // Relations
   actor    User?     @relation("ActorLogs", fields: [actor_id], references: [id], onDelete: SetNull)
-  election Election? @relation(fields: [target_id], references: [id], onDelete: SetNull)
+  election Election? @relation("ElectionAuditLogs", fields: [election_id], references: [id], onDelete: SetNull)
 
   @@map("audit_logs")
 }
