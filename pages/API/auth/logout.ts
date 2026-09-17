@@ -22,7 +22,7 @@ const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
     await prisma.auditLog.create({
       data: {
         actorId: req.user.userId,
-        actorRole: req.user.role,
+        actorRole: req.user.role as any, 
         action: 'logout',
         targetType: 'user',
         targetId: req.user.userId,
