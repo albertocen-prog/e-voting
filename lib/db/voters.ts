@@ -6,14 +6,14 @@ import { hashPassword } from '@/lib/auth/password';
 export interface VoterRegistrationRequest {
   voterId: string;
   password: string;
-  verificationInfo?: string;
+  verificationMode?: string;
 }
 
 export interface VoterRegistrationWithUser {
   id: string;
   userId: string;
   voterId: string;
-  verificationInfo?: string;
+  verificationMode?: string;
   approvedAt?: Date;
   createdAt: Date;
   user: {
@@ -30,7 +30,7 @@ export interface VoterRegistrationWithUser {
 export const registerVoter = async ({
   voterId,
   password,
-  verificationInfo,
+  verificationMode,
 }: VoterRegistrationRequest) => {
   // Check if voter ID already exists
   const existing = await prisma.voterRegistration.findUnique({
@@ -60,7 +60,7 @@ export const registerVoter = async ({
     data: {
       userId: user.id,
       voterId,
-      verificationInfo: verificationInfo, // Maps local camelCase variable to database snake_case column
+      verificationMode: verificationMode, // Maps local camelCase variable to database snake_case column
     },
     include: { user: true },
   });
