@@ -45,7 +45,7 @@ export const registerVoter = async ({
   const hashedPassword = await hashPassword(password);
 
   // Create user account (status: PENDING)
-  const user = await prisma.user.create({
+  const user = await prisma.user.create({...})
     return { success: true, user }; 
     data: {
       email: `voter-${voterId}@e-elct.local`,
