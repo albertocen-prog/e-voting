@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import type { Role } from '@prisma/client';
 
-export interface TokenPayload {
+export interface DecodedToken {
   userId: string;
   voterId?: string;
   email?: string;
