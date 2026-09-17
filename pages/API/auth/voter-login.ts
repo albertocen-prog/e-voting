@@ -1,4 +1,4 @@
-import type { NextApiResponse } from 'next';
+import type { NextApiRequest, NextApiResponse } from 'next'; // Added NextApiRequest
 import { prisma } from '@/lib/db';
 import { signToken } from '@/lib/auth/jwt';
 import { VoterLoginRequest, AuthResponse } from '@/lib/auth/types';
@@ -6,11 +6,6 @@ import { VoterLoginRequest, AuthResponse } from '@/lib/auth/types';
 /**
  * POST /api/auth/voter-login
  * Voter ID-based login endpoint
- *
- * Security Note: In production, add:
- * - Rate limiting (e.g., 5 attempts per minute)
- * - Admin approval requirement for voter IDs
- * - Optional one-time code verification
  */
 export default async function handler(
   req: NextApiRequest,
@@ -59,8 +54,8 @@ export default async function handler(
       });
     }
 
-    // Generate token
-    const token = generateToken({
+    // Generate token (Changed generateToken to signToken)
+    const token = signToken({
       userId: user.id,
       voterId: voterRegistration.voterId,
       role: user.role as any,
