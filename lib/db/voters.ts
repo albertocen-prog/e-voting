@@ -30,7 +30,7 @@ export interface VoterRegistrationWithUser {
 export const registerVoter = async ({
   voterId,
   password,
-  verificationInfo,
+  verificationMode,
 }: VoterRegistrationRequest) => {
   // Check if voter ID already exists
   const existing = await prisma.voterRegistration.findUnique({
@@ -53,13 +53,13 @@ export const registerVoter = async ({
       role: 'VOTER',
       status: 'PENDING',
     },
-  });  
+  });
+
   // Create voter registration
   const registration = await prisma.voterRegistration.create({
     data: {
-      userId,
-      password,
-      verificationMode: verificationMode, // Maps local camelCase variable to database snake_case column
+      userId: user.id, // Corrected from undefined 'userId'
+      verificationMode: verificationMode, // Corrected parameter reference
     },
     include: { user: true },
   });
@@ -90,8 +90,8 @@ export const approveVoter = async (voterId: string, approvedBy: string) => {
   await prisma.voterRegistration.update({
     where: { voterId },
     data: {
-      approved_by: approvedBy,
-      approved_at: new Date(),
+      approvedBy: approvedBy,
+      approvedAt: new Date(),
     },
   });
 
@@ -139,7 +139,7 @@ export const getPendingVoters = async (skip = 0, take = 20) => {
         },
       },
     },
-    orderBy: { created_at: 'asc' },
+    orderBy: { createdAt: 'asc' },
     skip,
     take,
   });
