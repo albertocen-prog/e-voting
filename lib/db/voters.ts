@@ -30,7 +30,7 @@ export interface VoterRegistrationWithUser {
 export const registerVoter = async ({
   voterId,
   password,
-  verificationMode,
+  verificationMode: data
 }: VoterRegistrationRequest) => {
   // Check if voter ID already exists
   const existing = await prisma.voterRegistration.findUnique({
