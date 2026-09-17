@@ -1,7 +1,13 @@
 import jwt from 'jsonwebtoken';
-import type { Role } from '@prisma/client'; 
-export * from './types';
-export { signToken, verifyToken } from './jwt';
+import type { Role } from '@prisma/client';
+
+export interface DecodedToken {
+  userId: string;
+  voterId?: string;
+  email?: string;
+  role: Role; // <-- Using Role here prevents the TS warning
+  status?: string;
+}
 
 const JWT_SECRET = process.env.JWT_SECRET || 'default_secret';
 
@@ -16,7 +22,7 @@ export const signToken = (session: DecodedToken): string => {
     },
     JWT_SECRET,
     {
-      expiresIn: 60 * 60 * 24, // 24 hours
+      expiresIn: 60 * 60 * 24,
     }
   );
 };
