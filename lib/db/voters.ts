@@ -60,7 +60,7 @@ export const registerVoter = async ({
     data: {
       voterId,
       userId: user.id,
-      verificationMode,
+      verificationMode: verificationMode,
     },
     include: { user: true },
   });
