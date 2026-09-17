@@ -60,7 +60,7 @@ export const registerVoter = async ({
     data: {
       userId: user.id,
       voterId,
-      verificationMode: verificationMode, // Maps local camelCase variable to database snake_case column
+      verificationMode: data, // Maps local camelCase variable to database snake_case column
     },
     include: { user: true },
   });
