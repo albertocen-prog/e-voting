@@ -41,13 +41,23 @@ enum BallotType {
   MULTIPLE_CHOICE
 }
 
-// Mode of voters registration 
+// Mode of voters registration ID types
 enum IdType {
   NOTIONAL_CARD
   NATIONAL_ID
   SCHOOL_ID
   PASSPORT
   DRIVER_LICENSE
+}
+
+// Mode / Method used for voter verification
+enum VerificationMode {
+  MANUAL_ADMIN_REVIEW
+  ID_DOCUMENT_OCR
+  FACIAL_RECOGNITION
+  SMS_OTP
+  EMAIL_VERIFICATION
+  THIRD_PARTY_KYC
 }
 
 // Users table - handles both voters and staff
@@ -72,18 +82,23 @@ model User {
 
 // Voter registration tracking
 model VoterRegistration {
-  id                String    @id @default(cuid())
-  user_id           String?   @unique
-  voter_id          String    @unique
+  id                String            @id @default(cuid())
+  user_id           String?           @unique
+  voter_id          String            @unique
   idType            IdType?
-  lookupKey         String?   @db.VarChar(128)
+  lookupKey         String?           @db.VarChar(128)
   hashedIdValue     String?
   idDocumentUrl     String?
-  verification_info String?
+  
+  // Verification details
+  verificationMode  VerificationMode?
+  verificationData  Json?             // Stores KYC API responses, confidence scores, OTP logs, etc.
+  verifiedAt        DateTime?
+
   approved_at       DateTime?
   approved_by       String?
-  created_at        DateTime  @default(now())
-  updated_at        DateTime  @updatedAt
+  created_at        DateTime          @default(now())
+  updated_at        DateTime          @updatedAt
 
   // Relations
   user User? @relation(fields: [user_id], references: [id], onDelete: SetNull)
