@@ -60,7 +60,7 @@ export const registerVoter = async ({
     data: {
       userId: user.id,
       voterId,
-      verificationInfo, // FIXED: replaced data.verification_info with verificationInfo
+      verification_info: verificationInfo, // Maps local camelCase variable to database snake_case column
     },
     include: { user: true },
   });
@@ -91,8 +91,8 @@ export const approveVoter = async (voterId: string, approvedBy: string) => {
   await prisma.voterRegistration.update({
     where: { voterId },
     data: {
-      approvedBy, // FIXED: replaced approved_by with approvedBy
-      approvedAt: new Date(), // FIXED: replaced approved_at with approvedAt
+      approved_by: approvedBy,
+      approved_at: new Date(),
     },
   });
 
@@ -140,7 +140,7 @@ export const getPendingVoters = async (skip = 0, take = 20) => {
         },
       },
     },
-    orderBy: { createdAt: 'asc' }, // FIXED: replaced created_at with createdAt
+    orderBy: { created_at: 'asc' },
     skip,
     take,
   });
