@@ -13,7 +13,7 @@ export interface VoterRegistrationWithUser {
   id: string;
   userId: string;
   voterId: string;
-  verificationInfo?: string;
+  verificationMode?: string;
   approvedAt?: Date;
   createdAt: Date;
   user: {
@@ -54,11 +54,11 @@ export const registerVoter = async ({
       status: 'PENDING',
     },
   });
-
+  return { success: true, user }; 
   // Create voter registration
   const registration = await prisma.voterRegistration.create({
     data: {
-      userId: user.id, // Corrected from undefined 'userId'
+      userId, // Corrected from undefined 'userId'
       verificationMode: verificationMode, // Corrected parameter reference
     },
     include: { user: true },
