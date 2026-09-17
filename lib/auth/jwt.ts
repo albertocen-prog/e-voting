@@ -1,15 +1,13 @@
-// If defined as 'enum Role' in schema.prisma:
-import { Role } from '@prisma/client';
+import jwt from 'jsonwebtoken';
+import type { Role } from '@prisma/client'; 
 
-export interface JWTPayload {
+export interface DecodedToken {
   userId: string;
-  role: UserRole;
+  voterId?: string;
+  email?: string;
+  role: Role;
+  status?: string;
 }
-
-
-// Or if defined as 'enum UserRole' in schema.prisma:
-import { UserRole } from '@prisma/client';
-
 
 const JWT_SECRET = process.env.JWT_SECRET || 'default_secret';
 
