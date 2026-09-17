@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { prisma } from '@/lib/db';
-import { signToken  } from '@/lib/auth/jwt';
+import { signToken } from '@/lib/auth/jwt';
 import { comparePassword } from '@/lib/auth/password';
 import { EmailLoginRequest, AuthResponse } from '@/lib/auth/types';
 
@@ -54,7 +54,7 @@ export default async function handler(
     }
 
     // Generate token
-    const token = generateToken({
+    const token = signToken({
       userId: user.id,
       email: user.email,
       role: user.role as any,
