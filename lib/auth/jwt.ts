@@ -1,13 +1,6 @@
+// In ./lib/auth/jwt.ts
 import jwt from 'jsonwebtoken';
-import type { Role } from '@prisma/client'; 
-
-export interface DecodedToken {
-  userId: string;
-  voterId?: string;
-  email?: string;
-  role: Role;
-  status?: string;
-}
+import { DecodedToken } from './types';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'default_secret';
 
@@ -21,9 +14,7 @@ export const signToken = (session: DecodedToken): string => {
       status: session.status,
     },
     JWT_SECRET,
-    {
-      expiresIn: 60 * 60 * 24, // 24 hours
-    }
+    { expiresIn: 60 * 60 * 24 }
   );
 };
 
