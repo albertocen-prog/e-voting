@@ -1,6 +1,10 @@
 // Session utilities for managing user sessions
 import { NextApiRequest, NextApiResponse } from 'next'
-import { DecodedToken } from './jwt' 
+import { DecodedToken } from './jwt';
+export function verifySession(token: string): DecodedToken | null {
+  // ... logic using DecodedToken
+}
+//import { DecodedToken } from './jwt' 
 import jwt from 'jsonwebtoken'
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
