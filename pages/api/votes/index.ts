@@ -30,7 +30,7 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
 
   try {
     const createdVote = await prisma.$transaction(async (tx) => {
-      // 1) Lock voter registration via SQL (returns raw DB column names)
+      // 1) Lock voter registration row using PostgreSQL native column names
       const rows = await tx.$queryRaw<Array<{ id: string; voter_id: string; approved_at: Date | null; user_id: string }>>`
         SELECT id, voter_id, approved_at, user_id
         FROM voter_registrations
@@ -50,18 +50,14 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
       // 3) Verify ballot belongs to election
       const ballot = await tx.ballot.findUnique({ where: { id: ballotId } })
       if (!ballot) throw { status: 404, message: 'Ballot not found' }
-      if ((ballot as any).election_id !== electionId && (ballot as any).electionId !== electionId) {
-        throw { status: 400, message: 'Ballot does not belong to specified election' }
-      }
+      if (ballot.electionId !== electionId) throw { status: 400, message: 'Ballot does not belong to specified election' }
 
       // 4) Verify option belongs to ballot
       const option = await tx.option.findUnique({ where: { id: optionId } })
       if (!option) throw { status: 404, message: 'Option not found' }
-      if ((option as any).ballot_id !== ballotId && (option as any).ballotId !== ballotId) {
-        throw { status: 400, message: 'Option does not belong to ballot' }
-      }
+      if (option.ballotId !== ballotId) throw { status: 400, message: 'Option does not belong to ballot' }
 
-      // 5) Check for existing vote via raw SQL to avoid model field key issues
+      // 5) Check for existing vote using raw SQL query (avoids compound key naming mismatches)
       const existingVotes = await tx.$queryRaw<Array<{ id: string }>>`
         SELECT id FROM votes
         WHERE election_id = ${electionId} AND voter_id = ${voterReg.voter_id}
@@ -71,28 +67,26 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
         throw { status: 409, message: 'A vote from this voter for this election already exists' }
       }
 
-      // 6) Create vote matching Prisma fields with fallback options
-      const voteData: any = {
-        election: { connect: { id: electionId } },
-        ballot: { connect: { id: ballotId } },
-        option: { connect: { id: optionId } },
-        voter_id: voterReg.voter_id,
-        user: { connect: { id: user.userId } },
-      }
-
+      // 6) Create vote using Prisma camelCase properties
       const vote = await tx.vote.create({
-        data: voteData,
+        data: {
+          electionId,
+          ballotId,
+          optionId,
+          voterId: voterReg.voter_id,
+          userId: user.userId,
+        },
       })
 
-      // 7) Create audit log using relation connections
+      // 7) Create audit log using Prisma camelCase properties
       await tx.auditLog.create({
         data: {
-          actor: { connect: { id: user.userId } },
-          actor_role: 'VOTER',
+          actorId: user.userId,
+          actorRole: 'VOTER',
           action: 'vote_cast',
-          target_type: 'election',
-          target_id: electionId,
-          election: { connect: { id: electionId } },
+          targetType: 'election',
+          targetId: electionId,
+          electionId: electionId,
           details: JSON.stringify({ ballotId, optionId, voteId: vote.id }),
         },
       })
