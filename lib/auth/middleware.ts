@@ -16,7 +16,7 @@ const extractTokenFromHeader = (authHeader?: string): string | null => {
 /**
  * Authentication Middleware
  */
-export const authMiddleware = (handler: any) => {
+export const authMiddleware = (handler: withAuth) => {
   return async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
     try {
       const authHeader = req.headers.authorization;
