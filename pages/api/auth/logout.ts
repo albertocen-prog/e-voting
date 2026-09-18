@@ -6,7 +6,7 @@ import { prisma } from '@/lib/db';
  * POST /api/auth/logout
  * Logout endpoint
  */
-const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
+const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse, req: NextApiRequest) => {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
