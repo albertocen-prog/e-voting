@@ -18,7 +18,7 @@ const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
       return res.status(400).json({ error: 'Election ID is required' });
     }
 
-    const userId = req.user?.userId || req.user?.id;
+    const userId = req.user?.userId;
 
     if (!userId) {
       return res.status(401).json({ error: 'User ID missing from token' });
