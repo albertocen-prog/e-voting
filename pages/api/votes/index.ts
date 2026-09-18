@@ -1,5 +1,5 @@
 // pages/api/votes/index.ts
-import type { NextApiResponse } from 'next'
+import type { NextApiRequest, NextApiResponse } from 'next'
 import { requireRole } from '@/lib/auth/middleware'
 import { prisma } from '@/lib/db'
 import { Prisma } from '@prisma/client'
@@ -14,7 +14,7 @@ import { Prisma } from '@prisma/client'
  *  - Within the same transaction: validate election/ballot/option, check for existing vote, create vote, write audit
  *  - Catch unique-constraint (P2002) as final guard and return 409
  */
-async function handler( req: NextApiResponse, res: NextApiResponse) {
+async function handler( req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
   const { electionId, ballotId, optionId } = req.body
