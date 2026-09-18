@@ -1,5 +1,5 @@
 import type { NextApiResponse } from 'next'
-import { NextApiRequestWithAuth } from '@/lib/auth/middleware'
+import { NextApiRequestWithAuth, withAuth } from '@/lib/auth/middleware'
 import { prisma } from '@/lib/db'
 
 async function handler(
