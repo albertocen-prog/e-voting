@@ -33,4 +33,4 @@ async function handler(
 }
 
 // Pass the required role string as the first argument if requireRole expects it
-export default requireRole('voter', handler)
+export default requireRole('admin', handler)
