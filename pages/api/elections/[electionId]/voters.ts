@@ -30,11 +30,15 @@ const handleGet = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
             status: true,
           },
         },
-        votes: {
-          where: { electionId },
+        participations: {
+          where: {
+            ballot: {
+              electionId: electionId,
+            },
+          },
           select: {
             id: true,
-            createdAt: true,
+            votedAt: true,
           },
         },
       },
@@ -44,8 +48,8 @@ const handleGet = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
       voterId: voter.voterId,
       name: voter.user.name,
       status: voter.user.status,
-      hasVoted: voter.votes.length > 0,
-      votedAt: voter.votes[0]?.createdAt || null,
+      hasVoted: voter.participations.length > 0,
+      votedAt: voter.participations[0]?.votedAt || null,
     }));
 
     return res.status(200).json({
@@ -61,10 +65,10 @@ const handleGet = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
 };
 
 const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
-  if (req.method === 'GET') {
-    return handleGet(req, res);
+  if (req.method !== 'GET') {
+    return res.status(405).json({ error: 'Method not allowed' });
   }
-  return res.status(405).json({ error: 'Method not allowed' });
+  return handleGet(req, res);
 };
 
 export default requireRole('ELECTION_OFFICIAL', 'ADMIN')(handler);
