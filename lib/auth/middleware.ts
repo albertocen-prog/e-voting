@@ -6,6 +6,12 @@ export interface NextApiRequestWithAuth extends NextApiRequest {
   user?: DecodedToken;
 }
 
+// Handler type definition
+export type AuthenticatedHandler = (
+  req: NextApiRequestWithAuth,
+  res: NextApiResponse
+) => Promise<void> | void;
+
 const extractTokenFromHeader = (authHeader?: string): string | null => {
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return null;
@@ -16,7 +22,7 @@ const extractTokenFromHeader = (authHeader?: string): string | null => {
 /**
  * Authentication Middleware
  */
-export const authMiddleware = (handler: withAuth) => {
+export const authMiddleware = (handler: AuthenticatedHandler) => {
   return async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
     try {
       const authHeader = req.headers.authorization;
@@ -40,7 +46,7 @@ export const authMiddleware = (handler: withAuth) => {
  * Role-based authorization middleware
  */
 export const requireRole = (...roles: string[]) => {
-  return (handler: any) => {
+  return (handler: AuthenticatedHandler) => {
     return async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
       try {
         const authHeader = req.headers.authorization;
