@@ -17,18 +17,28 @@ export default function Home() {
     // Check if user is logged in by verifying session
     const checkAuth = async () => {
       try {
-        const response = await fetch('/api/health')
+        const response = await fetch('/api/auth/me')
         if (response.ok) {
-          setLoading(false)
+          const data = await response.json()
+          setUser(data.user)
         }
       } catch (error) {
-        console.error('Health check failed:', error)
+        console.error('Session check failed:', error)
+      } finally {
         setLoading(false)
       }
     }
 
     checkAuth()
   }, [])
+
+  if (loading) {
+    return (
+      <div className="page-wrapper" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+        <p>Loading...</p>
+      </div>
+    )
+  }
 
   return (
     <>
@@ -49,7 +59,11 @@ export default function Home() {
             <ul className="nav-links">
               <li><Link href="/">Home</Link></li>
               <li><Link href="/elections">Elections</Link></li>
-              <li><Link href="/auth/login">Login</Link></li>
+              {user ? (
+                <li><span>Welcome, {user.name}</span></li>
+              ) : (
+                <li><Link href="/auth/login">Login</Link></li>
+              )}
             </ul>
           </div>
         </nav>
@@ -58,7 +72,9 @@ export default function Home() {
         <main className="main-content">
           <div className="hero-section">
             <div className="hero-content">
-              <h1>Welcome to Student Voting Platform</h1>
+              <h1>
+                {user ? `Welcome back, ${user.name}` : 'Welcome to Student Voting Platform'}
+              </h1>
               <p className="subtitle">
                 A secure, transparent, and accessible electronic voting system designed for academic institutions
               </p>
