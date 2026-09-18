@@ -33,4 +33,4 @@ async function handler(
 }
 
 // Pass the required role string as the first argument if requireRole expects it
-export default authMiddleware('admin', handler)
+export default authMiddleware( handler)
