@@ -33,7 +33,7 @@ const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
     // Get the vote for this voter in this election using findFirst
     const vote = await prisma.vote.findFirst({
       where: {
-        election_id: electionId,
+        electionId: electionId,
         voterRegistrationId: voterRegistration.id,
       },
       include: {
