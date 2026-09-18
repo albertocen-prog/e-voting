@@ -2,7 +2,7 @@ import type { NextApiResponse } from 'next'
 import { NextApiRequestWithAuth, requireRole } from '@/lib/auth/middleware'
 import { prisma } from '@/lib/db'
 
-export default async function handler(
+async function handler(
   req: NextApiRequestWithAuth,
   res: NextApiResponse
 ) {
@@ -32,3 +32,6 @@ export default async function handler(
     return res.status(500).json({ error: 'Internal server error' })
   }
 }
+
+// Pass your required role here (e.g., 'ADMIN' or 'USER'):
+export default requireRole(handler, 'USER')
