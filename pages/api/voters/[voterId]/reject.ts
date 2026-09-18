@@ -1,4 +1,4 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
+import type { NextApiResponse } from 'next';
 import { NextApiRequestWithAuth, requireRole } from '@/lib/auth/middleware';
 import { prisma } from '@/lib/db';
 import { createAuditLog } from '@/lib/db/audit';
