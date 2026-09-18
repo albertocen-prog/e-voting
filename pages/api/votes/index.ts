@@ -43,23 +43,28 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
       }
 
       // 2) Verify election exists and is OPEN
-      const election = await tx.election.findUnique({ where: { id: electionId } })
+      const elections = await tx.$queryRaw<Array<{ id: string; status: string }>>`
+        SELECT id, status FROM elections WHERE id = ${electionId} LIMIT 1
+      `
+      const election = elections && elections[0]
       if (!election) throw { status: 404, message: 'Election not found' }
       if (election.status !== 'OPEN') throw { status: 403, message: 'Election is not open' }
 
       // 3) Verify ballot belongs to election
-      const ballot = await tx.ballot.findUnique({ where: { id: ballotId } })
+      const ballots = await tx.$queryRaw<Array<{ id: string; election_id: string }>>`
+        SELECT id, election_id FROM ballots WHERE id = ${ballotId} LIMIT 1
+      `
+      const ballot = ballots && ballots[0]
       if (!ballot) throw { status: 404, message: 'Ballot not found' }
-      if ((ballot as any).electionId !== electionId && (ballot as any).election_id !== electionId) {
-        throw { status: 400, message: 'Ballot does not belong to specified election' }
-      }
+      if (ballot.election_id !== electionId) throw { status: 400, message: 'Ballot does not belong to specified election' }
 
       // 4) Verify option belongs to ballot
-      const option = await tx.option.findUnique({ where: { id: optionId } })
+      const options = await tx.$queryRaw<Array<{ id: string; ballot_id: string }>>`
+        SELECT id, ballot_id FROM options WHERE id = ${optionId} LIMIT 1
+      `
+      const option = options && options[0]
       if (!option) throw { status: 404, message: 'Option not found' }
-      if ((option as any).ballotId !== optionId && (option as any).ballot_id !== ballotId) {
-        throw { status: 400, message: 'Option does not belong to ballot' }
-      }
+      if (option.ballot_id !== ballotId) throw { status: 400, message: 'Option does not belong to ballot' }
 
       // 5) Check existing vote via raw SQL
       const existingVotes = await tx.$queryRaw<Array<{ id: string }>>`
@@ -71,25 +76,21 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
         throw { status: 409, message: 'A vote from this voter for this election already exists' }
       }
 
-      // 6) Insert vote using raw SQL to bypass Prisma Client type generation issues
+      // 6) Insert vote using raw SQL
       const voteId = `cuid_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
       await tx.$executeRaw`
         INSERT INTO votes (id, election_id, ballot_id, option_id, voter_id, user_id, created_at)
         VALUES (${voteId}, ${electionId}, ${ballotId}, ${optionId}, ${voterReg.voter_id}, ${user.userId}, NOW())
       `
 
-      // 7) Create audit log using relation syntax
-      await tx.auditLog.create({
-        data: {
-          actor: { connect: { id: user.userId } },
-          actor_role: 'VOTER',
-          action: 'vote_cast',
-          target_type: 'election',
-          target_id: electionId,
-          election: { connect: { id: electionId } },
-          details: JSON.stringify({ ballotId, optionId, voteId }),
-        },
-      })
+      // 7) Insert audit log using raw SQL
+      const auditId = `cuid_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
+      const detailsJson = JSON.stringify({ ballotId, optionId, voteId })
+      
+      await tx.$executeRaw`
+        INSERT INTO audit_logs (id, actor_id, actor_role, action, target_type, target_id, election_id, details, created_at)
+        VALUES (${auditId}, ${user.userId}, 'VOTER'::"UserRole", 'vote_cast', 'election', ${electionId}, ${electionId}, ${detailsJson}::jsonb, NOW())
+      `
 
       return voteId
     }, { maxWait: 5000, timeout: 10000 })
