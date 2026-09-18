@@ -37,6 +37,13 @@ const handleGet = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
 
     const total = await prisma.voterRegistration.count({ where });
 
+    // Record the audit log entry
+    await createAuditLog({
+      userId: req.user.id,
+      action: 'VIEW_VOTER_LIST',
+      details: { skip, take, status, resultCount: voters.length },
+    });
+
     return res.status(200).json({
       voters: voters.map((v) => ({
         id: v.id,
