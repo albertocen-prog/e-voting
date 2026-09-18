@@ -22,7 +22,7 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
   const { electionId, ballotId, optionId } = req.body
-  const { user } = req // Strongly typed user object
+  const user = req.user
 
   if (!electionId || !ballotId || !optionId)
     return res.status(400).json({ error: 'Missing fields: electionId, ballotId, optionId required' })
@@ -56,25 +56,38 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
       if (!option) throw { status: 404, message: 'Option not found' }
       if (option.ballotId !== ballotId) throw { status: 400, message: 'Option does not belong to ballot' }
 
-      // 5) Check existing vote
+      // 5) Check existing vote via voterParticipation relation
       const existing = await tx.vote.findFirst({
-        where: { electionId, voterRegistrationId: voterReg.id },
+        where: {
+          electionId,
+          voterParticipation: {
+            voterRegistrationId: voterReg.id,
+          },
+        },
       })
       if (existing) {
         throw { status: 409, message: 'A vote from this voter for this election already exists' }
       }
 
-      // 6) Create vote
+      // 6) Create vote via voterParticipation relation
       const vote = await tx.vote.create({
         data: {
           electionId,
           ballotId,
           optionId,
-          voterRegistrationId: voterReg.id,
+          voterParticipation: {
+            connect: {
+              // Connect via unique composite or unique field on VoterParticipation
+              voterRegistrationId_electionId: {
+                voterRegistrationId: voterReg.id,
+                electionId: electionId,
+              },
+            },
+          },
         },
       })
 
-      // 7) Create audit log
+      // 7) Create audit log inside the same tx
       await tx.auditLog.create({
         data: {
           actorId: voterReg.userId,
