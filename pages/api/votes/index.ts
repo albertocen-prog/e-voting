@@ -73,7 +73,7 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
           electionId,
           ballotId,
           optionId,
-          voterId: voterReg.voter_id,
+          voterId: voterReg.voterId,
           userId: user.userId,
         },
       })
