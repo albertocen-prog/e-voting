@@ -1,5 +1,5 @@
 import type { NextApiResponse } from 'next'
-import { NextApiRequestWithAuth, withMiddleware } from '@/lib/auth/middleware'
+import { NextApiRequestWithAuth, authMiddleware } from '@/lib/auth/middleware'
 import { prisma } from '@/lib/db'
 
 async function handler(
@@ -33,4 +33,4 @@ async function handler(
 }
 
 // Pass the required role string as the first argument if requireRole expects it
-export default withMiddleware('admin', handler)
+export default authMiddleware('admin', handler)
