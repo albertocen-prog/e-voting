@@ -31,7 +31,7 @@ const handlePost = async (req: NextApiRequestWithAuth, res: NextApiResponse) => 
     }
 
     // Update user status to APPROVED
-    const updated = await prisma.user.update({
+    await prisma.user.update({
       where: { id: registration.userId },
       data: { status: 'APPROVED' },
     });
