@@ -1,4 +1,4 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
+import type { NextApiResponse } from 'next';
 import { prisma } from '@/lib/db';
 import { signToken } from '@/lib/auth/jwt';
 import { comparePassword } from '@/lib/auth/password';
