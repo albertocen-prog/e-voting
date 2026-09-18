@@ -4,7 +4,7 @@ import { prisma } from '@/lib/db';
 
 /**
  * GET /api/elections/[electionId]/my-receipt
- * Get personal voting receipt for authenticated voter
+ * Get personal voting participation receipt for authenticated voter
  */
 const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
   if (req.method !== 'GET') {
@@ -24,7 +24,7 @@ const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
       return res.status(401).json({ error: 'User ID missing from token' });
     }
 
-    // 1. Get the voter registration record for this user
+    // 1. Fetch voter registration for the current authenticated user
     const voterRegistration = await prisma.voterRegistration.findUnique({
       where: { userId },
     });
@@ -33,11 +33,13 @@ const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
       return res.status(404).json({ error: 'Voter registration not found' });
     }
 
-    // 2. Fetch the vote using electionId and matching voter registration reference
-    const vote = await prisma.vote.findFirst({
+    // 2. Query participation via BallotParticipation using the user's voterRegistrationId
+    const participation = await prisma.ballotParticipation.findFirst({
       where: {
-        electionId: electionId,
         voterRegistrationId: voterRegistration.id,
+        ballot: {
+          electionId: electionId,
+        },
       },
       include: {
         ballot: {
@@ -46,28 +48,21 @@ const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
             title: true,
           },
         },
-        option: {
-          select: {
-            id: true,
-            label: true,
-          },
-        },
       },
     });
 
-    if (!vote) {
+    if (!participation) {
       return res.status(404).json({
-        error: 'No vote found for this election',
+        error: 'No vote participation record found for this election',
       });
     }
 
     return res.status(200).json({
-      voteId: vote.id,
+      receiptId: participation.id,
       electionId,
-      ballot: vote.ballot,
-      selectedOption: vote.option,
-      votedAt: vote.createdAt,
-      message: 'Your vote has been recorded',
+      ballot: participation.ballot,
+      votedAt: participation.votedAt,
+      message: 'Your vote participation has been recorded',
     });
   } catch (error) {
     console.error('Get receipt error:', error);
