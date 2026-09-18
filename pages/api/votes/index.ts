@@ -30,7 +30,7 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
 
   try {
     const createdVote = await prisma.$transaction(async (tx) => {
-      // 1) Lock and fetch voter registration using raw SQL DB column names
+      // 1) Lock and fetch voter registration using DB column names
       const rows: Array<{ id: string; voter_id: string; approved_at: Date | null; user_id: string }> = await tx.$queryRaw`
         SELECT id, voter_id, approved_at, user_id
         FROM voter_registrations
@@ -50,46 +50,44 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
       // 3) Verify ballot belongs to election
       const ballot = await tx.ballot.findUnique({ where: { id: ballotId } })
       if (!ballot) throw { status: 404, message: 'Ballot not found' }
-      if (ballot.electionId !== electionId) throw { status: 400, message: 'Ballot does not belong to specified election' }
+      if (ballot.election_id !== electionId) throw { status: 400, message: 'Ballot does not belong to specified election' }
 
       // 4) Verify option belongs to ballot
       const option = await tx.option.findUnique({ where: { id: optionId } })
       if (!option) throw { status: 404, message: 'Option not found' }
-      if (option.ballotId !== ballotId) throw { status: 400, message: 'Option does not belong to ballot' }
+      if (option.ballot_id !== ballotId) throw { status: 400, message: 'Option does not belong to ballot' }
 
-      // 5) Check for existing vote using Prisma's generated camelCase compound key
-      const existing = await tx.vote.findUnique({
+      // 5) Check existing vote using findFirst (prevents type errors with compound unique key names)
+      const existing = await tx.vote.findFirst({
         where: {
-          electionId_voterId: {
-            electionId: electionId,
-            voterId: voterReg.voter_id,
-          },
+          election_id: electionId,
+          voter_id: voterReg.voter_id,
         },
       })
       if (existing) {
         throw { status: 409, message: 'A vote from this voter for this election already exists' }
       }
 
-      // 6) Create vote using Prisma camelCase model fields
+      // 6) Create vote matching your schema model fields exactly
       const vote = await tx.vote.create({
         data: {
-          electionId,
-          ballotId,
-          optionId,
-          voterId: voterReg.voter_id,
-          userId: user.userId,
+          election_id: electionId,
+          ballot_id: ballotId,
+          option_id: optionId,
+          voter_id: voterReg.voter_id,
+          user_id: user.userId,
         },
       })
 
-      // 7) Create audit log using Prisma camelCase model fields
+      // 7) Create audit log
       await tx.auditLog.create({
         data: {
-          actorId: user.userId,
-          actorRole: 'VOTER',
+          actor_id: user.userId,
+          actor_role: 'VOTER',
           action: 'vote_cast',
-          targetType: 'election',
-          targetId: electionId,
-          electionId: electionId,
+          target_type: 'election',
+          target_id: electionId,
+          election_id: electionId,
           details: JSON.stringify({ ballotId, optionId, voteId: vote.id }),
         },
       })
