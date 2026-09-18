@@ -24,11 +24,20 @@ const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
       return res.status(401).json({ error: 'User ID missing from token' });
     }
 
-    // Query vote directly via userId
+    // 1. Get the voter registration record for this user
+    const voterRegistration = await prisma.voterRegistration.findUnique({
+      where: { userId },
+    });
+
+    if (!voterRegistration) {
+      return res.status(404).json({ error: 'Voter registration not found' });
+    }
+
+    // 2. Fetch the vote using electionId and matching voter registration reference
     const vote = await prisma.vote.findFirst({
       where: {
         electionId: electionId,
-        userId: userId,
+        voterRegistrationId: voterRegistration.id,
       },
       include: {
         ballot: {
