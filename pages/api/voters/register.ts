@@ -80,5 +80,7 @@ const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
   }
   return res.status(405).json({ error: 'Method not allowed' });
 };
+// At the bottom of pages/api/voters/register.ts
+export default authMiddleware(handler);
 
-export default handler;
+
