@@ -5,7 +5,15 @@ import { prisma } from '@/lib/db'
 async function handler(
   req: NextApiRequestWithAuth,
   res: NextApiResponse
-) {
+  type ApiHandler = (req: NextApiRequestWithAuth, res: NextApiResponse) => Promise<void>;
+
+export function withAuth(handler: ApiHandler) {
+  return async (req: NextApiRequest, res: NextApiResponse) => {
+    // middleware logic...
+    return handler(req as NextApiRequestWithAuth, res);
+  };
+
+{
   const { id } = req.query
 
   if (!id || Array.isArray(id)) {
