@@ -1,8 +1,9 @@
-import type { NextApiResponse,NextApiRequest } from 'next'
+import type { NextApiResponse } from 'next'
+import { NextApiRequestWithAuth, requireRole } from '@/lib/auth/middleware'
 import { prisma } from '@/lib/db'
 
 export default async function handler(
-  req: NextApiRequest,
+  req: NextApiRequestWithAuth,
   res: NextApiResponse
 ) {
   const { id } = req.query
@@ -16,15 +17,8 @@ export default async function handler(
   }
 
   try {
-    // If your Prisma schema uses an Int ID, convert it:
-    // const targetId = parseInt(id, 10)
-    // if (isNaN(targetId)) return res.status(400).json({ error: 'ID must be a number' })
-    
-    // If your Prisma schema uses String/UUID/CUID IDs:
-    const targetId = id
-
     const ballot = await prisma.ballot.findUnique({
-      where: { id: targetId },
+      where: { id: id as string },
       include: { options: true },
     })
 
