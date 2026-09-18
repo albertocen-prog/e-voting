@@ -1,5 +1,5 @@
 // pages/api/votes/index.ts
-import type { NextApiResponse } from 'next'
+import type { NextApiRequest, NextApiResponse } from 'next'
 import { requireRole } from '@/lib/auth/middleware'
 import { prisma } from '@/lib/db'
 import { Prisma } from '@prisma/client'
