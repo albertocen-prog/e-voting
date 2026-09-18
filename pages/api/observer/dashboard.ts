@@ -61,7 +61,7 @@ const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
       })),
       auditLogs: auditLogs.map((log) => ({
         action: log.action,
-        actor: log.actor.name,
+        actor: log.actor?.name ?? 'System', // Fixed: Optional chaining handles null actors
         timestamp: log.createdAt,
       })),
     });
