@@ -103,4 +103,4 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   }
 }
 
-export default requireApprovedVoter(handler)
+export default requireRole('VOTER')(handler)
