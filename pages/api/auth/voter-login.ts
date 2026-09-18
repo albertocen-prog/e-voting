@@ -54,8 +54,8 @@ export default async function handler(
       });
     }
 
-    // Generate token
-    const token = generateToken({
+    // Generate token change to signToken 
+    const token = signToken({
       userId: user.id,
       voterId: voterRegistration.voterId,
       role: user.role as any,
