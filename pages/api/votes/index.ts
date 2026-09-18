@@ -30,7 +30,7 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
 
   try {
     const createdVote = await prisma.$transaction(async (tx) => {
-      // 1) Lock and fetch voter registration using DB column names for raw SQL
+      // 1) Lock and fetch voter registration using raw SQL DB column names
       const rows: Array<{ id: string; voter_id: string; approved_at: Date | null; user_id: string }> = await tx.$queryRaw`
         SELECT id, voter_id, approved_at, user_id
         FROM voter_registrations
@@ -57,12 +57,12 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
       if (!option) throw { status: 404, message: 'Option not found' }
       if (option.ballotId !== ballotId) throw { status: 400, message: 'Option does not belong to ballot' }
 
-      // 5) Check for existing vote using election_id_voter_id compound unique key
+      // 5) Check for existing vote using Prisma's generated camelCase compound key
       const existing = await tx.vote.findUnique({
         where: {
-          election_id_voter_id: {
-            election_id: electionId,
-            voter_id: voterReg.voter_id,
+          electionId_voterId: {
+            electionId: electionId,
+            voterId: voterReg.voter_id,
           },
         },
       })
@@ -70,26 +70,26 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
         throw { status: 409, message: 'A vote from this voter for this election already exists' }
       }
 
-      // 6) Create vote matching Prisma client camelCase properties
+      // 6) Create vote using Prisma camelCase model fields
       const vote = await tx.vote.create({
         data: {
           electionId,
           ballotId,
           optionId,
-          voter_id: voterReg.voter_id,
+          voterId: voterReg.voter_id,
           userId: user.userId,
         },
       })
 
-      // 7) Create audit log
+      // 7) Create audit log using Prisma camelCase model fields
       await tx.auditLog.create({
         data: {
-          actor_id: user.userId,
-          actor_role: 'VOTER',
+          actorId: user.userId,
+          actorRole: 'VOTER',
           action: 'vote_cast',
-          target_type: 'election',
-          target_id: electionId,
-          election_id: electionId,
+          targetType: 'election',
+          targetId: electionId,
+          electionId: electionId,
           details: JSON.stringify({ ballotId, optionId, voteId: vote.id }),
         },
       })
