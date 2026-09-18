@@ -14,7 +14,7 @@ import { Prisma } from '@prisma/client'
  *  - Within the same transaction: validate election/ballot/option, check for existing vote, create vote, write audit
  *  - Catch unique-constraint (P2002) as final guard and return 409
  */
-async function handler(req: NextApiRequest, res: NextApiResponse) {
+async function handler( res: NextApiResponse) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
   const { electionId, ballotId, optionId } = req.body
