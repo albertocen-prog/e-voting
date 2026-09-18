@@ -33,7 +33,7 @@ const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
     // Get the vote for this voter in this election
     const vote = await prisma.vote.findUnique({
       where: {
-        election_id_voterRegistrationId: {
+        election_id: {
           election_id: electionId,
           voterRegistrationId: voterRegistration.id,
         },
