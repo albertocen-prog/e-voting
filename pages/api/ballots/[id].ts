@@ -5,15 +5,7 @@ import { prisma } from '@/lib/db'
 async function handler(
   req: NextApiRequestWithAuth,
   res: NextApiResponse
-  type ApiHandler = (req: NextApiRequestWithAuth, res: NextApiResponse) => Promise<void>;
-
-export function withAuth(handler: ApiHandler) {
-  return async (req: NextApiRequest, res: NextApiResponse) => {
-    // middleware logic...
-    return handler(req as NextApiRequestWithAuth, res);
-  };
-
-{
+) {
   const { id } = req.query
 
   if (!id || Array.isArray(id)) {
@@ -36,10 +28,9 @@ export function withAuth(handler: ApiHandler) {
 
     return res.status(200).json(ballot)
   } catch (error) {
-    console.error('Error fetching ballot:', error)
     return res.status(500).json({ error: 'Internal server error' })
   }
 }
 
-// Pass your required role here (e.g., 'ADMIN' or 'USER'):
-export default requireRole(handler, 'USER')
+// Pass the required role string as the first argument if requireRole expects it
+export default requireRole('voter', handler)
