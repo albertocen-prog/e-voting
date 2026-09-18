@@ -1,4 +1,4 @@
-import type { NextApiResponse } from 'next';
+import type { NextApiRequest, NextApiResponse } from 'next';
 import { prisma } from '@/lib/db';
 import { signToken } from '@/lib/auth/jwt';
 import { comparePassword } from '@/lib/auth/password';
@@ -53,15 +53,14 @@ export default async function handler(
       });
     }
 
-    // Generate token
-    const token = generateToken({
+    // Call signToken here instead of generateToken
+    const token = signToken({
       userId: user.id,
       email: user.email,
       role: user.role as any,
       status: user.status as any,
     });
-    // Set cookie for browser flows
-    setSessionCookie(res, token);
+
     // Log successful login
     await prisma.auditLog.create({
       data: {
