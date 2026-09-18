@@ -5,7 +5,6 @@ import { prisma } from '@/lib/db';
 /**
  * GET /api/elections/[electionId]/my-receipt
  * Get personal voting receipt for authenticated voter
- * Shows what the voter voted for and when (no other voter information)
  */
 const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
   if (req.method !== 'GET') {
@@ -19,24 +18,17 @@ const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
       return res.status(400).json({ error: 'Election ID is required' });
     }
 
-    // Get voter registration for this user
-    const voterRegistration = await prisma.voterRegistration.findUnique({
-      where: { userId: req.user!.userId },
-    });
+    const userId = req.user?.userId || req.user?.id;
 
-    if (!voterRegistration) {
-      return res.status(404).json({
-        error: 'Voter registration not found',
-      });
+    if (!userId) {
+      return res.status(401).json({ error: 'User ID missing from token' });
     }
 
-    // Filter via relation to guarantee schema compatibility
+    // Query vote directly via userId
     const vote = await prisma.vote.findFirst({
       where: {
         electionId: electionId,
-        voterRegistration: {
-          id: voterRegistration.id,
-        },
+        userId: userId,
       },
       include: {
         ballot: {
