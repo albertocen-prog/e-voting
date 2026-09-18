@@ -39,7 +39,7 @@ const handleGet = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
 
     // Record the audit log entry
     await createAuditLog({
-      userId: req.user.id,
+      actorId: req.user.id,
       action: 'VIEW_VOTER_LIST',
       details: { skip, take, status, resultCount: voters.length },
     });
