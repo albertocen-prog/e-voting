@@ -99,7 +99,7 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
             targetType: 'election',
             targetId: electionId,
             electionId,
-            details: JSON.stringify { (ballotId, optionId, voteId: vote.id )},
+            details: JSON.stringify  ({ballotId, optionId, voteId: vote.id }),
           },
         })
 
