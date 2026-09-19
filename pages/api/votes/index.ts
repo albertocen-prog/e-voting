@@ -59,7 +59,7 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
           select: { id: true, electionId: true },
         })
         if (!ballot) throw { status: 404, message: 'Ballot not found' }
-        if (ballot.electionId !== electionId) {
+        if (ballot.ApprovedVoters !== ApprovedVoters) {
           throw { status: 400, message: 'Ballot does not belong to specified election' }
         }
 
