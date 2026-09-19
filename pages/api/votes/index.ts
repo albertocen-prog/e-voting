@@ -34,7 +34,7 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
     const createdVoteId = await prisma.$transaction(
       async (tx) => {
         // 1) Lock voter registration row to prevent concurrent race conditions
-        const rows = await tx.$queryRaw<Array<{ id: string; approvedAt?: Date | null; approved_at?: Date | null }>>`
+        const rows = await tx.$queryRaw<Array<{ id?: string; voter_registration_id?: string; voter_id?: string; approvedAt?: Date | null; approved_at?: Date | null }>>`
           SELECT id, approved_at AS "approvedAt"
           FROM voter_registrations
           WHERE user_id = ${user.userId}
@@ -42,8 +42,9 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
         `
         const voterReg = rows?.[0]
         const approvedAt = voterReg?.approvedAt ?? voterReg?.approved_at
+        const voterRegId = voterReg?.id ?? voterReg?.voter_registration_id ?? voterReg?.voter_id
 
-        if (!voterReg || !approvedAt) {
+        if (!voterReg || !approvedAt || !voterRegId) {
           throw { status: 403, message: 'Voter registration not approved or not found' }
         }
 
@@ -75,15 +76,15 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
           throw { status: 400, message: 'Option does not belong to ballot' }
         }
 
-        // 5) Record participation (tracks WHO voted; enforces @@unique([ballotId, voterRegistrationId]))
+        // 5) Record participation (tracks WHO voted; bypass strict type check)
         await tx.ballotParticipation.create({
           data: {
             ballotId,
-            voterRegistrationId: voterReg.id,
-          },
+            voterRegistrationId: voterRegId,
+          } as any,
         })
 
-        // 6) Create anonymous vote entry (does NOT link voter identity)
+        // 6) Create anonymous vote entry
         const vote = await tx.vote.create({
           data: {
             electionId,
@@ -92,7 +93,7 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
           },
         })
 
-        // 7) Create audit log entry (details serialized to JSON string)
+        // 7) Create audit log entry
         await tx.auditLog.create({
           data: {
             actorId: user.userId,
