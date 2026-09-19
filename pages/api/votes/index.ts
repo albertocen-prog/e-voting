@@ -1,7 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { requireApprovedVoter } from '@/lib/auth/middleware'
-import  {prism} from '@prisma/client '
-//import { prisma } from '@/lib/db'
+import { prisma, Type prisma} from '@/lib/db'
 
 export interface AuthUser {
   userId: string
