@@ -76,15 +76,15 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
           throw { status: 400, message: 'Option does not belong to ballot' }
         }
 
-        // 5) Record participation (tracks WHO voted; bypass strict type check)
+        // 5) Record participation (tracks WHO voted; enforces unique constraint)
         await tx.ballotParticipation.create({
           data: {
             ballotId,
             voterRegistrationId: voterRegId,
-          } as any,
+          },
         })
 
-        // 6) Create anonymous vote entry
+        // 6) Create anonymous vote entry (does NOT link voter identity)
         const vote = await tx.vote.create({
           data: {
             electionId,
@@ -93,7 +93,7 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
           },
         })
 
-        // 7) Create audit log entry
+        // 7) Create audit log entry (details serialized to JSON string)
         await tx.auditLog.create({
           data: {
             actorId: user.userId,
