@@ -1,5 +1,4 @@
-import type { NextApiRequest, NextApiResponse } from 'next'
-import { Prisma } from '@prisma/client' 
+import type { NextApiRequest, NextApiResponse } from 'next' 
 import { requireApprovedVoter } from '@/lib/auth/middleware'
 import { prisma } from '@/lib/db'
 
