@@ -70,3 +70,9 @@ export const requireRole = (...roles: string[]) => {
     };
   };
 };
+
+/**
+ * Higher-order middleware for voter routes.
+ * Enforces 'VOTER' role authentication and attaches decoded token to req.user.
+ */
+export const requireApprovedVoter = requireRole('VOTER');
