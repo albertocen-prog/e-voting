@@ -79,9 +79,9 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
         // 5) Record participation (tracks WHO voted; enforces unique constraint)
         await tx.ballotParticipation.create({
           data: {
-            ballot: { connect: { id: ballotId } },
-            option: { connect: { id: optionId } },
-            voter: { connect: { id: voterRegId } },
+            ballotId, 
+            VoterRegistrationId: voterReg.id, 
+        
             
           },
         })
