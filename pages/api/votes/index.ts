@@ -110,4 +110,4 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
   }
 }
 
-export default requireRole('VOTER')(handler as any)
+export default requireAproval('VOTER')(handler as any)
