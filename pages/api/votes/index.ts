@@ -100,7 +100,7 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
             targetType: 'election',
             targetId: electionId,
             electionId,
-            details: ({ballotId, optionId, voteId: vote.id }) as Prisma.InputJsonObject,
+            details:JSON.stringify ({ballotId, optionId, voteId: vote.id }),
           },
         })
 
