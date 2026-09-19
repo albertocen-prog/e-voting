@@ -9,34 +9,39 @@
     "lint": "next lint",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev --name init",
-    "prisma:seed": "node prisma/seed.js",
+    "prisma:seed": "prisma db seed",
     "test": "jest --passWithNoTests",
     "test:watch": "jest --watch"
   },
+  "prisma": {
+    "seed": "node prisma/seed.js"
+  },
   "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "axios": "^1.4.0",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.0",
     "next": "^14.0.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "@prisma/client": "^5.22.0",
-    "jsonwebtoken": "^9.0.0",
-    "bcryptjs": "^2.4.3",
-    "axios": "^1.4.0"
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "typescript": "^5.0.0",
-    "prisma": "^5.22.0",
+    "@babel/preset-env": "^7.22.15",
+    "@babel/preset-react": "^7.22.5",
+    "@testing-library/jest-dom": "^6.0.0",
+    "@testing-library/react": "^14.0.0",
+    "@testing-library/user-event": "^14.4.3",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.0",
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "babel-jest": "^29.6.1",
     "eslint": "^8.0.0",
     "eslint-config-next": "^14.0.0",
-    "@types/react": "^18.0.0",
-    "@types/node": "^20.0.0",
-    "@types/jsonwebtoken": "^9.0.0",
-    "jest": "^29.6.1",
-    "babel-jest": "^29.6.1",
-    "@testing-library/react": "^14.0.0",
-    "@testing-library/jest-dom": "^6.0.0",
-    "@testing-library/user-event": "^14.4.3",
     "identity-obj-proxy": "^3.0.0",
-    "@babel/preset-env": "^7.22.15",
-    "@babel/preset-react": "^7.22.5"
+    "jest": "^29.6.1",
+    "prisma": "^5.22.0",
+    "typescript": "^5.0.0"
   }
 }
