@@ -80,7 +80,7 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
         await tx.ballotParticipation.create({
           data: {
             ballotId,
-            voterRegistrationId: voterRegId,
+            voterId: voterRegId,
           },
         })
 
