@@ -1,8 +1,6 @@
-// pages/api/votes/index.ts
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { requireApprovedVoter } from '@/lib/auth/middleware'
 import { prisma } from '@/lib/db'
-import { Prisma } from '@prisma/client'
 
 export interface AuthUser {
   userId: string
@@ -101,7 +99,7 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
       return res.status(err.status).json({ error: err.message })
     }
 
-    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
+    if (err?.code === '23505') {
       return res.status(409).json({ error: 'A vote from this voter for this election already exists' })
     }
 
@@ -110,4 +108,4 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
   }
 }
 
-export default requireApproved ('VOTER')(handler as any)
+export default requireApprovedVoter(handler as any)
