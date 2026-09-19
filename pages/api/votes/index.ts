@@ -1,4 +1,4 @@
-import type { NextApiRequest, NextApiResponse } from 'next' 
+import type { NextApiRequest, NextApiResponse } from 'next'
 import { requireApprovedVoter } from '@/lib/auth/middleware'
 import { prisma } from '@/lib/db'
 
@@ -33,15 +33,17 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
   try {
     const createdVoteId = await prisma.$transaction(
       async (tx) => {
-        // 1) Lock voter registration row to prevent race conditions
-        const rows = await tx.$queryRaw<Array<{ id: string; approved_at: Date | null }>>`
-          SELECT id, approved_at
+        // 1) Lock voter registration row to prevent concurrent race conditions
+        const rows = await tx.$queryRaw<Array<{ id: string; approvedAt?: Date | null; approved_at?: Date | null }>>`
+          SELECT id, approved_at AS "approvedAt"
           FROM voter_registrations
           WHERE user_id = ${user.userId}
           FOR UPDATE
         `
         const voterReg = rows?.[0]
-        if (!voterReg || !voterReg.approved_at) {
+        const approvedAt = voterReg?.approvedAt ?? voterReg?.approved_at
+
+        if (!voterReg || !approvedAt) {
           throw { status: 403, message: 'Voter registration not approved or not found' }
         }
 
@@ -59,7 +61,7 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
           select: { id: true, electionId: true },
         })
         if (!ballot) throw { status: 404, message: 'Ballot not found' }
-        if (ballot.electionId!== electionId) {
+        if (ballot.electionId !== electionId) {
           throw { status: 400, message: 'Ballot does not belong to specified election' }
         }
 
@@ -73,7 +75,7 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
           throw { status: 400, message: 'Option does not belong to ballot' }
         }
 
-        // 5) Record participation (enforces unique [ballotId, voterRegistrationId])
+        // 5) Record participation (tracks WHO voted; enforces @@unique([ballotId, voterRegistrationId]))
         await tx.ballotParticipation.create({
           data: {
             ballotId,
@@ -81,7 +83,7 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
           },
         })
 
-        // 6) Create anonymous vote entry
+        // 6) Create anonymous vote entry (does NOT link voter identity)
         const vote = await tx.vote.create({
           data: {
             electionId,
@@ -90,7 +92,7 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
           },
         })
 
-        // 7) Create audit log entry
+        // 7) Create audit log entry (details serialized to JSON string)
         await tx.auditLog.create({
           data: {
             actorId: user.userId,
@@ -99,7 +101,7 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
             targetType: 'election',
             targetId: electionId,
             electionId,
-            details:JSON.stringify ({ballotId, optionId, voteId: vote.id }),
+            details: JSON.stringify({ ballotId, optionId, voteId: vote.id }),
           },
         })
 
@@ -114,7 +116,7 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
       return res.status(err.status).json({ error: err.message })
     }
 
-    // Prisma Unique Constraint Violation (P2002) for BallotParticipation
+    // Handle duplicate participation constraint error
     if (err?.code === 'P2002' || err?.code === '23505') {
       return res.status(409).json({ error: 'You have already voted on this ballot' })
     }
