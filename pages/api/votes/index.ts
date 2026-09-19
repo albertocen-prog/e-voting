@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { requireApprovedVoter } from '@/lib/auth/middleware'
-import { prisma } from '@/lib/db'
+import  {prism} from '@prisma/client '
+//import { prisma } from '@/lib/db'
 
 export interface AuthUser {
   userId: string
@@ -59,7 +60,7 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
           select: { id: true, electionId: true },
         })
         if (!ballot) throw { status: 404, message: 'Ballot not found' }
-        if (ballot.ApprovedVoters !== ApprovedVoters) {
+        if (ballot.electionId!== electionId) {
           throw { status: 400, message: 'Ballot does not belong to specified election' }
         }
 
@@ -99,7 +100,7 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
             targetType: 'election',
             targetId: electionId,
             electionId,
-            details: JSON.stringify  ({ballotId, optionId, voteId: vote.id }),
+            details: ({ballotId, optionId, voteId: vote.id }) as prisma.InputJsonObject,
           },
         })
 
