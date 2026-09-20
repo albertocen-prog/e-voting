@@ -77,15 +77,22 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
         }
 
         // 5) Record participation (tracks WHO voted; enforces unique constraint)
-        await tx.ballotParticipation.create({
-          data: {
-            ballotId, 
-            voterRegistrationId: voterReg.id, 
-        
-            
-          },
-        })
+        // Check to ensure voter registration ID is present
+        const voterRegId = voterReg?.id;
+        if (!voterRegId) {
+        throw { status: 403, message: 'Voter registration missing' };
+        }
 
+        // 5) Record participation
+        await tx.ballotParticipation.create({
+        data: {
+        ballotId,
+        voterRegistrationId: voterRegId, // TypeScript now knows this is strictly a string
+       },
+       });
+
+        
+  
         // 6) Create anonymous vote entry (does NOT link voter identity)
         const vote = await tx.vote.create({
           data: {
