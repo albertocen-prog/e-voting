@@ -44,6 +44,7 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
         const approvedAt = voterReg?.approvedAt ?? voterReg?.approved_at
         const voterRegId = voterReg?.id ?? voterReg?.voter_registration_id ?? voterReg?.voter_id
 
+        // Ensure voter registration exists, is approved, and has a valid ID string
         if (!voterReg || !approvedAt || !voterRegId) {
           throw { status: 403, message: 'Voter registration not approved or not found' }
         }
@@ -77,22 +78,13 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
         }
 
         // 5) Record participation (tracks WHO voted; enforces unique constraint)
-        // Check to ensure voter registration ID is present
-        const voterRegId = voterReg?.id;
-        if (!voterRegId) {
-        throw { status: 403, message: 'Voter registration missing' };
-        }
-
-        // 5) Record participation
         await tx.ballotParticipation.create({
-        data: {
-        ballotId,
-        voterRegistrationId: voterRegId, // TypeScript now knows this is strictly a string
-       },
-       });
+          data: {
+            ballotId,
+            voterRegistrationId: voterRegId, // Guarantee string type from outer check
+          },
+        })
 
-        
-  
         // 6) Create anonymous vote entry (does NOT link voter identity)
         const vote = await tx.vote.create({
           data: {
