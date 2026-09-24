@@ -1,5 +1,6 @@
 import type { NextApiResponse } from 'next';
-import { NextApiRequestWithAuth, requireRole } from '@/lib/auth/middleware';
+import type { NextApiRequestWithAuth } from '@/lib/auth/middleware';
+import { requireRole } from '@/lib/auth/middleware';
 import { prisma } from '@/lib/db';
 
 /**
@@ -43,7 +44,7 @@ const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
     const total = await prisma.auditLog.count({ where });
 
     return res.status(200).json({
-      logs: logs.map((log) => ({
+      logs: logs.map((log: any) => ({
         id: log.id,
         actor: log.actor,
         action: log.action,
@@ -65,4 +66,5 @@ const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
   }
 };
 
-export default requireRole('ELECTION_OFFICIAL', 'OBSERVER', 'ADMIN')(handler);
+// Pass roles as a SINGLE ARRAY argument:
+export default requireRole(['ELECTION_OFFICIAL', 'OBSERVER', 'ADMIN'])(handler as any);
