@@ -1,5 +1,3 @@
-import { NextApiResponse } from 'next';
-import type { NextApiRequestWithAuth } from '@/lib/auth/middleware';
 import { requireRole } from '@/lib/auth/middleware';
 import { prisma } from '@/lib/db';
 
@@ -7,7 +5,7 @@ import { prisma } from '@/lib/db';
  * GET /api/admin/dashboard
  * Admin dashboard with system overview
  */
-const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
+const handler = async (req, res) => {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -60,7 +58,7 @@ const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
         pending: pendingVoters,
       },
       staff: staffCount,
-      recentActivity: recentLogs.map((log: any) => ({
+      recentActivity: recentLogs.map((log) => ({
         action: log.action,
         actor: log.actor?.name ?? 'System',
         timestamp: log.createdAt,
@@ -72,4 +70,4 @@ const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
   }
 };
 
-export default requireRole('ADMIN')(handler as any);
+export default requireRole('ADMIN')(handler);
