@@ -5,7 +5,7 @@ import Link from 'next/link';
 type BallotSummary = {
   id: string;
   title: string;
-}
+};
 
 type ElectionDetail = {
   id: string;
@@ -15,7 +15,7 @@ type ElectionDetail = {
   endAt: string;
   status: string;
   ballots?: BallotSummary[];
-}
+};
 
 export default function ElectionDetailPage() {
   const router = useRouter()
