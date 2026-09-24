@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
 export default function ElectionsPage() {
-  const [elections, setElections] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [elections, setElections] = useState<any[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     fetch('/api/elections')
@@ -19,7 +19,7 @@ export default function ElectionsPage() {
     <main style={{ padding: '2rem' }}>
       <h1>Elections</h1>
       <ul>
-        {elections.map((election) => (
+        {elections.map((election: any) => (
           <li key={election.id}>
             <Link href={`/elections/${election.id}`}>{election.title}</Link>
           </li>
