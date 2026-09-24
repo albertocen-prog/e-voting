@@ -2,8 +2,16 @@ import Head from 'next/head'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 
+// Define the User interface
+interface User {
+  id?: string
+  name?: string
+  email?: string
+  role?: string
+}
+
 export default function Home() {
-  const [user, setUser] = useState(() => null)
+  const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -33,8 +41,8 @@ export default function Home() {
     )
   }
 
-  // Safe property extraction to pass strict TypeScript build checks
-  const userName = user && typeof user === 'object' && 'name' in user ? user.name : ''
+  // Optional chaining with fallback
+  const userName = user?.name ?? ''
 
   return (
     <>
