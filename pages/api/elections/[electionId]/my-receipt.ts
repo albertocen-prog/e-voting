@@ -44,7 +44,7 @@ const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
       include: {
         ballot: {
           select: {
-            id: true,
+            electionId: true,
             title: true,
           },
         },
