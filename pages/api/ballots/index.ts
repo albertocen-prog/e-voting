@@ -53,4 +53,4 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 }
 
 // Applies role guard to the entire route handler
-export default requireRole('ELECTION_OFFICIAL', 'ADMIN')(handler)
+export default requireRole(['ELECTION_OFFICIAL', 'ADMIN'])(handler)
