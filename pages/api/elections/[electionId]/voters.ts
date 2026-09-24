@@ -15,7 +15,7 @@ const handleGet = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
     }
 
     const election = await prisma.election.findUnique({
-      where: { electionId: electionId },
+      where: { id: electionId },
     });
 
     if (!election) {
