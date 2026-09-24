@@ -171,6 +171,7 @@ model AuditLog {
 enum Role {
   VOTER
   ELECTION_OFFICIAL
+  OFFICIAL 
   OBSERVER
   ADMIN
 }
