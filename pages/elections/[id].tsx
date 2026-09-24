@@ -2,31 +2,15 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
-interface BallotSummary {
-  id: string;
-  title: string;
-}
-
-interface ElectionDetail {
-  id: string;
-  title: string;
-  description?: string;
-  startAt: string;
-  endAt: string;
-  status: string;
-  ballots?: BallotSummary[];
-}
-
 export default function ElectionDetailPage() {
   const router = useRouter();
   const { id } = router.query;
 
-  const [election, setElection] = useState<ElectionDetail | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const [election, setElection] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Wait until router.query is ready
     if (!router.isReady) return;
     if (!id || typeof id !== 'string') {
       setLoading(false);
@@ -48,9 +32,9 @@ export default function ElectionDetailPage() {
           throw new Error(`Failed to load election (Status: ${response.status})`);
         }
 
-        const data: ElectionDetail = await response.json();
+        const data = await response.json();
         setElection(data);
-      } catch (err: any) {
+      } catch (err) {
         if (err.name !== 'AbortError') {
           console.error(err);
           setError(err.message || 'An unexpected error occurred');
