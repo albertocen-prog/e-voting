@@ -1,7 +1,6 @@
 import type { NextApiResponse } from 'next';
 import { authMiddleware, NextApiRequestWithAuth } from '@/lib/auth/middleware';
 import { prisma } from '@/lib/db';
-
 /**
  * GET /api/auth/me
  * Get current user information
