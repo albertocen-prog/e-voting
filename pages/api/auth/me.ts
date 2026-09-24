@@ -1,6 +1,5 @@
 import type { NextApiResponse } from 'next';
-// ✅ Import default export outside braces, named exports inside braces
-import authMiddleware, { NextApiRequestWithAuth } from '@/lib/auth/middleware';
+import { authMiddleware, NextApiRequestWithAuth } from '@/lib/auth/middleware';
 import { prisma } from '@/lib/db';
 
 /**
