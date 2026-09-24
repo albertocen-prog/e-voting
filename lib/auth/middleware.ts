@@ -3,7 +3,7 @@ import { verifyToken } from './jwt';
 import { signToken } from './types';
 
 export interface NextApiRequestWithAuth extends NextApiRequest {
-  user?: DecodedToken;
+  user?: signToken;
 }
 
 // Handler type definition
