@@ -33,11 +33,11 @@ const handleGet = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
         participations: {
           where: {
             ballot: {
-              electionId: electionId,
+              id: electionId,
             },
           },
           select: {
-            electionId: true,
+            id: true,
             votedAt: true,
           },
         },
