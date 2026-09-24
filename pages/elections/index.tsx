@@ -1,42 +1,30 @@
-import Link from 'next/link'
-import { useEffect, useState } from 'react'
-
-type Election = {
-  id: string
-  title: string
-  description?: string
-  status: string
-  startAt: string
-  endAt: string
-}
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
 
 export default function ElectionsPage() {
-  const [elections, setElections] = useState<Election[]>([])
-  const [loading, setLoading] = useState(true)
+  const [elections, setElections] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch('/api/elections')
-      .then((r) => r.json())
-      .then((data) => {
-        setElections(data.elections || [])
-      })
+      .then((res) => res.json())
+      .then((data) => setElections(data))
       .catch(console.error)
-      .finally(() => setLoading(false))
-  }, [])
+      .finally(() => setLoading(false));
+  }, []);
 
-  if (loading) return <div>Loading...</div>
+  if (loading) return <div>Loading elections...</div>;
 
   return (
-    <main>
+    <main style={{ padding: '2rem' }}>
       <h1>Elections</h1>
       <ul>
-        {elections.map((e) => (
-          <li key={e.id}>
-            <Link href={`/elections/${e.id}`}>{e.title}</Link> — {e.status}
-            <p>{e.description}</p>
+        {elections.map((election) => (
+          <li key={election.id}>
+            <Link href={`/elections/${election.id}`}>{election.title}</Link>
           </li>
         ))}
       </ul>
     </main>
-  )
+  );
 }
