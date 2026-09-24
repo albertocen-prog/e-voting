@@ -1,7 +1,6 @@
-import type {  NextApiResponse } from 'next';
-// lib/auth/middleware.ts
-export default function authMiddleware(...) { ... }
-import { NextApiRequestWithAuth, authMiddleware } from '@/lib/auth/middleware';
+import type { NextApiResponse } from 'next';
+// ✅ Import default export outside braces, named exports inside braces
+import authMiddleware, { NextApiRequestWithAuth } from '@/lib/auth/middleware';
 import { prisma } from '@/lib/db';
 
 /**
