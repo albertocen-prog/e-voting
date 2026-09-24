@@ -118,4 +118,4 @@ const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
   return res.status(405).json({ error: 'Method not allowed' });
 };
 
-export default requireRole('VOTER', 'ELECTION_OFFICIAL', 'OBSERVER', 'ADMIN')(handler);
+export default requireRole(['VOTER', 'ELECTION_OFFICIAL', 'OBSERVER', 'ADMIN'])(handler);
