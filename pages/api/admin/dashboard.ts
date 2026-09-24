@@ -1,4 +1,4 @@
-import type { NextApiResponse } from 'next'; // Removed unused NextApiRequest
+import { NextApiResponse } from 'next';
 import { NextApiRequestWithAuth, requireRole } from '@/lib/auth/middleware';
 import { prisma } from '@/lib/db';
 
