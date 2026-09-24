@@ -10,6 +10,11 @@ export type MiddlewareHandler = (
   res: NextApiResponse
 ) => Promise<void> | void;
 
+export function authMiddleware(handler: NextApiHandler) {
+  return async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
+    // ... authentication logic ...
+    return handler(req, res);
+
 /**
  * Middleware wrapper enforcing role-based authorization
  */
