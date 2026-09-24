@@ -1,5 +1,6 @@
 import { NextApiResponse } from 'next';
-import type NextApiRequestWithAuth, { requireRole } from '@/lib/auth/middleware';
+import type NextApiRequestWithAuth from '@/lib/auth/middleware';
+import { requireRole } from '@/lib/auth/middleware';
 import { prisma } from '@/lib/db';
 
 /**
