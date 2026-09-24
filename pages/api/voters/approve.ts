@@ -28,4 +28,4 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   }
 }
 
-export default requireRole('ELECTION_OFFICIAL', 'ADMIN')(handler)
+export default requireRole(['ELECTION_OFFICIAL', 'ADMIN'])(handler)
