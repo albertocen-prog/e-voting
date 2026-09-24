@@ -165,4 +165,4 @@ const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
   return handleGet(req, res);
 };
 
-export default requireRole('ELECTION_OFFICIAL', 'OBSERVER', 'ADMIN')(handler);
+export default requireRole(['ELECTION_OFFICIAL', 'OBSERVER', 'ADMIN'])(handler);
