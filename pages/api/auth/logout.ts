@@ -1,10 +1,10 @@
 import type { NextApiResponse } from 'next';
-import { NextApiRequestWithAuth, authMiddleware } from '@/lib/auth/middleware';
-import { prisma } from '@/lib/db';
+import type { NextApiRequestWithAuth } from '@/lib/auth/middleware';
+import { requireRole } from '@/lib/auth/middleware';
 
 /**
  * POST /api/auth/logout
- * Logout endpoint
+ * Clears the authentication token cookie / session
  */
 const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
   if (req.method !== 'POST') {
@@ -12,20 +12,11 @@ const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
   }
 
   try {
-    if (!req.user) {
-      return res.status(401).json({ error: 'Not authenticated' });
-    }
-
-    // Log logout event
-    await prisma.auditLog.create({
-      data: {
-        actorId: req.user.userId,
-        actorRole: req.user.role as any,
-        action: 'logout',
-        targetType: 'user',
-        targetId: req.user.userId,
-      },
-    });
+    // Clear auth cookie
+    res.setHeader(
+      'Set-Cookie',
+      'token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; SameSite=Strict'
+    );
 
     return res.status(200).json({ message: 'Logged out successfully' });
   } catch (error) {
@@ -34,4 +25,5 @@ const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
   }
 };
 
-export default authMiddleware(handler);
+// Use requireRole with all standard roles or leave array empty if open to any authenticated user
+export default requireRole(['VOTER', 'ELECTION_OFFICIAL', 'OBSERVER', 'ADMIN'])(handler as any);
