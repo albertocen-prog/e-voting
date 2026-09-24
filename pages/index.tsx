@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 
 export default function Home() {
-  const [user, setUser] = useState(null)
+  const [user, setUser] = useState(() => null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -33,6 +33,9 @@ export default function Home() {
     )
   }
 
+  // Safe property extraction to pass strict TypeScript build checks
+  const userName = user && typeof user === 'object' && 'name' in user ? user.name : ''
+
   return (
     <>
       <Head>
@@ -53,7 +56,7 @@ export default function Home() {
               <li><Link href="/">Home</Link></li>
               <li><Link href="/elections">Elections</Link></li>
               {user ? (
-                <li><span>Welcome, {user.name}</span></li>
+                <li><span>Welcome, {userName}</span></li>
               ) : (
                 <li><Link href="/auth/login">Login</Link></li>
               )}
@@ -66,7 +69,7 @@ export default function Home() {
           <div className="hero-section">
             <div className="hero-content">
               <h1>
-                {user ? `Welcome back, ${user.name}` : 'Welcome to Student Voting Platform'}
+                {user ? `Welcome back, ${userName}` : 'Welcome to Student Voting Platform'}
               </h1>
               <p className="subtitle">
                 A secure, transparent, and accessible electronic voting system designed for academic institutions
