@@ -3,18 +3,18 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 
 type BallotSummary = {
-  id: string
-  title: string
+  id: string;
+  title: string;
 }
 
 type ElectionDetail = {
-  id: string
-  title: string
-  description?: string
-  startAt: string
-  endAt: string
-  status: string
-  ballots?: BallotSummary[]
+  id: string;
+  title: string;
+  description?: string;
+  startAt: string;
+  endAt: string;
+  status: string;
+  ballots?: BallotSummary[];
 }
 
 export default function ElectionDetailPage() {
