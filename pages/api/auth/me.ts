@@ -1,4 +1,5 @@
 import type {  NextApiResponse } from 'next';
+import authMiddleware from '@/lib/auth/middleware'; // ✅ Default import
 import { NextApiRequestWithAuth, authMiddleware } from '@/lib/auth/middleware';
 import { prisma } from '@/lib/db';
 
