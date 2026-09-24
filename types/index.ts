@@ -1,12 +1,12 @@
-// TypeScript types for the application
-import { UserRole, ElectionStatus, BallotType, UserStatus } from '@prisma/client'
+// TypeScript types matching Prisma schema enums
+import { Role, ElectionStatus, BallotType, UserStatus } from '@prisma/client'
 
 // User types
 export interface UserData {
   id: string
   email?: string
   name: string
-  role: UserRole
+  role: Role
   status: UserStatus
   created_at: Date
   updated_at: Date
@@ -69,7 +69,7 @@ export interface VoteData {
 export interface AuditLogData {
   id: string
   actor_id?: string
-  actor_role?: UserRole
+  actor_role?: Role
   action: string
   target_type?: string
   target_id?: string
@@ -91,4 +91,3 @@ export interface ApiErrorResponse {
 }
 
 export type ApiResponse<T = any> = ApiSuccessResponse<T> | ApiErrorResponse
-  
