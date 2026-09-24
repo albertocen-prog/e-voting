@@ -1,4 +1,4 @@
-import { NextApiResponse } from 'next';
+import { NextApiResponse, NextApiRequest } from 'next';
 import { NextApiRequestWithAuth, requireRole } from '@/lib/auth/middleware';
 import { prisma } from '@/lib/db';
 
