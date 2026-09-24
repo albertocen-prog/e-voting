@@ -1,9 +1,8 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import type { DecodedToken } from './types';
+import jwt from 'jsonwebtoken';
 
-// Export interface directly so other API routes can import it
 export interface NextApiRequestWithAuth extends NextApiRequest {
-  user?: DecodedToken;
+  user?: any;
 }
 
 export type MiddlewareHandler = (
@@ -15,6 +14,7 @@ export type MiddlewareHandler = (
  * Middleware wrapper enforcing role-based authorization
  */
 export function requireRole(allowedRoles: string | string[]) {
+  // 1. Declare and normalize allowedRoles into an array
   const rolesArray = Array.isArray(allowedRoles) ? allowedRoles : [allowedRoles];
 
   return (handler: MiddlewareHandler) => {
@@ -29,13 +29,22 @@ export function requireRole(allowedRoles: string | string[]) {
           return res.status(401).json({ error: 'Authentication token missing' });
         }
 
-        // Add token verification logic here
-        // req.user = decodedToken;
+        const decoded = jwt.verify(
+          token,
+          process.env.JWT_SECRET || 'fallback-secret-key'
+        ) as any;
+
+        req.user = decoded;
+
+        // 2. READ & USE 'rolesArray' HERE to perform the role check
+        if (rolesArray.length > 0 && !rolesArray.includes(decoded.role)) {
+          return res.status(403).json({ error: 'Forbidden: Insufficient privileges' });
+        }
 
         return handler(req, res);
       } catch (error) {
         console.error('Authorization middleware error:', error);
-        return res.status(401).json({ error: 'Authentication failed' });
+        return res.status(401).json({ error: 'Invalid or expired token' });
       }
     };
   };
