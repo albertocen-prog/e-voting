@@ -1,4 +1,4 @@
-import type { NextApiRequest, NextApiResponse, NextApiHandler } from 'next';
+import { NextApiRequest, NextApiResponse, NextApiHandler } from 'next';
 import jwt from 'jsonwebtoken';
 
 export interface NextApiRequestWithAuth extends NextApiRequest {
