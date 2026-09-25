@@ -1,7 +1,11 @@
-import type { NextApiResponse } from 'next';
-import { NextApiRequestWithAuth, authMiddleware } from '@/lib/auth/middleware';
+import type { NextApiRequest, NextApiResponse } from 'next';
+import { authMiddleware } from '@/lib/auth/middleware';
 import { prisma } from '@/lib/db';
 import { createAuditLog } from '@/lib/db/audit';
+
+export interface NextApiRequestWithAuth extends NextApiRequest {
+  user?: any;
+}
 
 interface VoteRequest {
   electionId: string;
