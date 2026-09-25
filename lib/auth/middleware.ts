@@ -1,20 +1,10 @@
-import { NextApiRequest, NextApiResponse, NextApiHandler } from 'next';
 import jwt from 'jsonwebtoken';
-
-export interface NextApiRequestWithAuth extends NextApiRequest {
-  user?: any;
-}
-
-export type MiddlewareHandler = (
-  req: NextApiRequestWithAuth,
-  res: NextApiResponse
-) => Promise<void> | void;
 
 /**
  * Basic authentication middleware wrapper
  */
-export function authMiddleware(handler: NextApiHandler | MiddlewareHandler) {
-  return async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
+export function authMiddleware(handler) {
+  return async (req, res) => {
     try {
       const authHeader = req.headers.authorization;
       const token = authHeader?.startsWith('Bearer ')
@@ -28,7 +18,7 @@ export function authMiddleware(handler: NextApiHandler | MiddlewareHandler) {
       const decoded = jwt.verify(
         token,
         process.env.JWT_SECRET || 'fallback-secret-key'
-      ) as any;
+      );
 
       req.user = decoded;
       return handler(req, res);
@@ -42,11 +32,11 @@ export function authMiddleware(handler: NextApiHandler | MiddlewareHandler) {
 /**
  * Middleware wrapper enforcing role-based authorization
  */
-export function requireRole(allowedRoles: string | string[]) {
+export function requireRole(allowedRoles) {
   const rolesArray = Array.isArray(allowedRoles) ? allowedRoles : [allowedRoles];
 
-  return (handler: MiddlewareHandler) => {
-    return async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
+  return (handler) => {
+    return async (req, res) => {
       try {
         const authHeader = req.headers.authorization;
         const token = authHeader?.startsWith('Bearer ')
@@ -60,7 +50,7 @@ export function requireRole(allowedRoles: string | string[]) {
         const decoded = jwt.verify(
           token,
           process.env.JWT_SECRET || 'fallback-secret-key'
-        ) as any;
+        );
 
         req.user = decoded;
 
@@ -80,8 +70,8 @@ export function requireRole(allowedRoles: string | string[]) {
 /**
  * Middleware wrapper ensuring the user has a VOTER role and is approved
  */
-export function requireApprovedVoter(handler: MiddlewareHandler) {
-  return async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
+export function requireApprovedVoter(handler) {
+  return async (req, res) => {
     try {
       const authHeader = req.headers.authorization;
       const token = authHeader?.startsWith('Bearer ')
@@ -95,7 +85,7 @@ export function requireApprovedVoter(handler: MiddlewareHandler) {
       const decoded = jwt.verify(
         token,
         process.env.JWT_SECRET || 'fallback-secret-key'
-      ) as any;
+      );
 
       req.user = decoded;
 
