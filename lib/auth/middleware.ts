@@ -99,7 +99,6 @@ export function requireApprovedVoter(handler: MiddlewareHandler) {
 
       req.user = decoded;
 
-      // Check for approved voter criteria
       const isVoter = decoded.role === 'VOTER' || decoded.role === 'voter';
       const isApproved = decoded.isApproved ?? true;
 
