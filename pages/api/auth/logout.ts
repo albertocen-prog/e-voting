@@ -1,6 +1,9 @@
-import type { NextApiResponse } from 'next';
-import type { NextApiRequestWithAuth } from '@/lib/auth/middleware';
+import type { NextApiRequest, NextApiResponse } from 'next';
 import { requireRole } from '@/lib/auth/middleware';
+
+export interface NextApiRequestWithAuth extends NextApiRequest {
+  user?: any;
+}
 
 /**
  * POST /api/auth/logout
