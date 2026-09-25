@@ -1,7 +1,11 @@
-import type { NextApiResponse } from 'next';
-import { NextApiRequestWithAuth, requireRole } from '@/lib/auth/middleware';
+import type { NextApiRequest, NextApiResponse } from 'next';
+import { requireRole } from '@/lib/auth/middleware';
 import { prisma } from '@/lib/db';
 import { hashPassword } from '@/lib/auth/password';
+
+export interface NextApiRequestWithAuth extends NextApiRequest {
+  user?: any;
+}
 
 /**
  * POST /api/admin/staff
