@@ -1,6 +1,8 @@
 import type { NextApiRequest, NextApiResponse, NextApiHandler } from 'next';
 import jwt from 'jsonwebtoken';
+// To default import:
 
+import requireApprovedVoter from '@/lib/auth/middleware';
 export interface NextApiRequestWithAuth extends NextApiRequest {
   user?: any;
 }
