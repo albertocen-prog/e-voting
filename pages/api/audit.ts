@@ -1,7 +1,10 @@
-import type { NextApiResponse } from 'next';
-import type { NextApiRequestWithAuth } from '@/lib/auth/middleware';
+import type { NextApiRequest, NextApiResponse } from 'next';
 import { requireRole } from '@/lib/auth/middleware';
 import { prisma } from '@/lib/db';
+
+export interface NextApiRequestWithAuth extends NextApiRequest {
+  user?: any;
+}
 
 /**
  * GET /api/audit?election_id=&actor_id=&action=&skip=&take=
