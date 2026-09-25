@@ -1,6 +1,11 @@
-import type { NextApiResponse } from 'next';
-import { authMiddleware, NextApiRequestWithAuth } from '@/lib/auth/middleware';
+import type { NextApiRequest, NextApiResponse } from 'next';
+import { authMiddleware } from '@/lib/auth/middleware';
 import { prisma } from '@/lib/db';
+
+export interface NextApiRequestWithAuth extends NextApiRequest {
+  user?: any;
+}
+
 /**
  * GET /api/auth/me
  * Get current user information
