@@ -1,6 +1,9 @@
 import type { NextApiResponse } from 'next'
 import { NextApiRequestWithAuth, authMiddleware } from '@/lib/auth/middleware'
 import { prisma } from '@/lib/db'
+export interface NextApiRequestWithAuth extends NextApiRequest {
+  user?: any;
+}
 
 async function handler(
   req: NextApiRequestWithAuth,
