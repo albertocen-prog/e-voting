@@ -1,10 +1,15 @@
-import type { NextApiResponse } from 'next';
-import { NextApiRequestWithAuth, authMiddleware } from '@/lib/auth/middleware';
+import type { NextApiRequest, NextApiResponse } from 'next';
+import { authMiddleware } from '@/lib/auth/middleware';
 import { prisma } from '@/lib/db';
 
-  /**GET /api/elections/[id];
-  Get election details by ID;
-  **/
+export interface NextApiRequestWithAuth extends NextApiRequest {
+  user?: any;
+}
+
+/**
+ * GET /api/elections/[id]
+ * Get election details by ID
+ */
 const handleGet = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
   try {
     const { id } = req.query;
