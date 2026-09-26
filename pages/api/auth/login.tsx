@@ -1,92 +1,71 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
-import { prisma } from '@/lib/db';
-import { signToken } from '@/lib/auth/jwt';
-import { comparePassword } from '@/lib/auth/password';
-import { EmailLoginRequest, AuthResponse } from '@/lib/auth/types';
+import React, { useState, FormEvent, ChangeEvent } from 'react';
+import { useRouter } from 'next/router';
 
-/**
- * POST /api/auth/login
- * Email + password login for officials, observers, and admins
- **/
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+export default function VoterLoginPage() {
+  const router = useRouter();
+  const [voterId, setVoterId] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>('');
 
-  try {
-    const { email, password } = req.body as EmailLoginRequest;
+  const submit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
 
-    if (!email || !password) {
-      return res
-        .status(400)
-        .json({ error: 'Email and password are required' });
-    }
-
-    // Find user by email
-    const user = await prisma.user.findUnique({
-      where: { email },
-    });
-
-    if (!user) {
-      return res.status(401).json({ error: 'Invalid email or password' });
-    }
-
-    if (!user.passwordHash) {
-      return res.status(401).json({
-        error: 'This account is not configured for email login',
+    try {
+      const res = await fetch('/api/auth/voter-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ voterId }),
       });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to authenticate');
+      }
+
+      router.push('/voter/dashboard');
+    } catch (err: any) {
+      setError(err.message || 'An unexpected error occurred');
+    } finally {
+      setLoading(false);
     }
+  };
 
-    // Verify password
-    const isPasswordValid = await comparePassword(password, user.passwordHash);
-    if (!isPasswordValid) {
-      return res.status(401).json({ error: 'Invalid email or password' });
-    }
+  return (
+    <div style={{ maxWidth: '400px', margin: '40px auto', padding: '20px' }}>
+      <h1>Voter Login</h1>
+      <form onSubmit={submit}>
+        <div style={{ marginBottom: '16px' }}>
+          <label htmlFor="voterId" style={{ display: 'block', marginBottom: '8px' }}>
+            Voter ID
+          </label>
+          <input
+            id="voterId"
+            type="text"
+            value={voterId}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => setVoterId(e.target.value)}
+            placeholder="Enter your Voter ID"
+            required
+            style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+          />
+        </div>
 
-    // Check account status
-    if (user.status === 'SUSPENDED') {
-      return res.status(403).json({
-        error: 'Your account has been suspended',
-      });
-    }
+        {error && (
+          <div style={{ color: 'red', marginBottom: '16px' }}>
+            {error}
+          </div>
+        )}
 
-    // Call signToken
-    const token = signToken({
-      userId: user.id,
-      email: user.email,
-      role: user.role as any,
-      status: user.status as any,
-    });
-
-    // Log successful login
-    await prisma.auditLog.create({
-      data: {
-        actorId: user.id,
-        actorRole: user.role,
-        action: 'email_login',
-        targetType: 'user',
-        targetId: user.id,
-        details: JSON.stringify({ email: user.email }),
-      },
-    });
-
-    const response: AuthResponse = {
-      token,
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role,
-        status: user.status,
-      },
-    };
-
-    return res.status(200).json(response);
-  } catch (error: any) {
-    console.error('Email login error:', error);
-    return res.status(500).json({ error: 'Internal server error' });
-  }
+        <button
+          type="submit"
+          disabled={loading}
+          style={{ width: '100%', padding: '10px', cursor: loading ? 'not-allowed' : 'pointer' }}
+        >
+          {loading ? 'Logging in...' : 'Sign In'}
+        </button>
+      </form>
+    </div>
+  );
 }
