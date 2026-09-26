@@ -58,7 +58,7 @@ const handleGet = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
     }
 
     return res.status(200).json({
-      voters: voters.map((v) => ({
+      voters: voters.map((v: any) => ({
         id: v.id,
         voterId: v.voterId,
         name: v.user.name,
@@ -74,7 +74,7 @@ const handleGet = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
         hasMore: skip + take < total,
       },
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Get voters error:', error);
     return res.status(500).json({ error: 'Internal server error' });
   }
