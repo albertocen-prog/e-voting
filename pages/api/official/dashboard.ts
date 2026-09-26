@@ -50,7 +50,7 @@ const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
 
     return res.status(200).json({
       activeElections,
-      pendingApprovals: pendingVoters.map((v) => ({
+      pendingApprovals: pendingVoters.map((v: any) => ({
         voterId: v.voterId,
         registeredAt: v.user.createdAt,
         verificationInfo: v.verificationInfo,
@@ -60,7 +60,7 @@ const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
         pendingApprovalsCount: pendingVoters.length,
       },
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Official dashboard error:', error);
     return res.status(500).json({ error: 'Internal server error' });
   }
