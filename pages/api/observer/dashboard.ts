@@ -47,7 +47,7 @@ const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
 
     // Count votes per election
     const voteStats = await Promise.all(
-      elections.map(async (election) => {
+      elections.map(async (election: any) => {
         const voteCount = await prisma.vote.count({
           where: { electionId: election.id },
         });
@@ -59,17 +59,17 @@ const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
     );
 
     return res.status(200).json({
-      elections: elections.map((election) => ({
+      elections: elections.map((election: any) => ({
         ...election,
-        votes: voteStats.find((s) => s.electionId === election.id)?.voteCount || 0,
+        votes: voteStats.find((s: any) => s.electionId === election.id)?.voteCount || 0,
       })),
-      auditLogs: auditLogs.map((log) => ({
+      auditLogs: auditLogs.map((log: any) => ({
         action: log.action,
-        actor: log.actor?.name ?? 'System', // Fixed: Optional chaining handles null actors
+        actor: log.actor?.name ?? 'System',
         timestamp: log.createdAt,
       })),
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Observer dashboard error:', error);
     return res.status(500).json({ error: 'Internal server error' });
   }
