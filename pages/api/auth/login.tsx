@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { prisma } from '@/lib/db';
+import { FormEvent } from 'react';
 import { signToken } from '@/lib/auth/jwt';
 import { comparePassword } from '@/lib/auth/password';
 import { EmailLoginRequest, AuthResponse } from '@/lib/auth/types';
