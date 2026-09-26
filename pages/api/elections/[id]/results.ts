@@ -45,7 +45,7 @@ const handleGet = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
     }
 
     const results = await Promise.all(
-      election.ballots.map(async (ballot) => {
+      election.ballots.map(async (ballot: any) => {
         const voteCounts = await prisma.vote.groupBy({
           by: ['optionId'],
           where: { ballotId: ballot.id },
@@ -54,8 +54,8 @@ const handleGet = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
           },
         });
 
-        const optionResults = ballot.options.map((option) => {
-          const voteCount = voteCounts.find((vc) => vc.optionId === option.id)?._count.id || 0;
+        const optionResults = ballot.options.map((option: any) => {
+          const voteCount = voteCounts.find((vc: any) => vc.optionId === option.id)?._count.id || 0;
           return {
             optionId: option.id,
             label: option.label,
@@ -63,7 +63,7 @@ const handleGet = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
           };
         });
 
-        const totalVotes = optionResults.reduce((sum, or) => sum + or.voteCount, 0);
+        const totalVotes = optionResults.reduce((sum: number, or: any) => sum + or.voteCount, 0);
 
         return {
           ballotId: ballot.id,
@@ -80,7 +80,7 @@ const handleGet = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
       status: election.status,
       ballots: results,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Get results error:', error);
     return res.status(500).json({ error: 'Internal server error' });
   }
@@ -141,7 +141,7 @@ const handleGetCsv = async (req: NextApiRequestWithAuth, res: NextApiResponse) =
       });
 
       for (const option of ballot.options) {
-        const voteCount = voteCounts.find((vc) => vc.optionId === option.id)?._count.id || 0;
+        const voteCount = voteCounts.find((vc: any) => vc.optionId === option.id)?._count.id || 0;
         csv += `"${option.label}",${voteCount}\n`;
       }
 
@@ -151,7 +151,7 @@ const handleGetCsv = async (req: NextApiRequestWithAuth, res: NextApiResponse) =
     res.setHeader('Content-Type', 'text/csv');
     res.setHeader('Content-Disposition', `attachment; filename="election-results-${id}.csv"`);
     return res.status(200).send(csv);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Export results error:', error);
     return res.status(500).json({ error: 'Internal server error' });
   }
