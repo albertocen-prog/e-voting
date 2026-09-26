@@ -1,6 +1,10 @@
-import type { NextApiResponse } from 'next';
-import { NextApiRequestWithAuth, authMiddleware } from '@/lib/auth/middleware';
+import type { NextApiRequest, NextApiResponse } from 'next';
+import { authMiddleware } from '@/lib/auth/middleware';
 import { prisma } from '@/lib/db';
+
+export interface NextApiRequestWithAuth extends NextApiRequest {
+  user?: any;
+}
 
 /**
  * POST /api/voters/register
@@ -80,7 +84,5 @@ const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
   }
   return res.status(405).json({ error: 'Method not allowed' });
 };
-// At the bottom of pages/api/voters/register.ts
+
 export default authMiddleware(handler);
-
-
