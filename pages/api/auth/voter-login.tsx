@@ -22,7 +22,6 @@ export default async function handler(
       return res.status(400).json({ error: 'Voter ID is required' });
     }
 
-    // Find voter registration
     const voterRegistration = await prisma.voterRegistration.findUnique({
       where: { voterId },
       include: { user: true },
@@ -37,24 +36,17 @@ export default async function handler(
     const user = voterRegistration.user;
 
     if (user.status === 'PENDING') {
-      return res.status(403).json({
-        error: 'Your voter registration is pending approval',
-      });
+      return res.status(403).json({ error: 'Your voter registration is pending approval' });
     }
 
     if (user.status === 'REJECTED') {
-      return res.status(403).json({
-        error: 'Your voter registration was rejected',
-      });
+      return res.status(403).json({ error: 'Your voter registration was rejected' });
     }
 
     if (user.status === 'SUSPENDED') {
-      return res.status(403).json({
-        error: 'Your account has been suspended',
-      });
+      return res.status(403).json({ error: 'Your account has been suspended' });
     }
 
-    // Generate token
     const token = signToken({
       userId: user.id,
       voterId: voterRegistration.voterId,
@@ -62,7 +54,6 @@ export default async function handler(
       status: user.status as any,
     });
 
-    // Log successful login
     await prisma.auditLog.create({
       data: {
         actorId: user.id,
