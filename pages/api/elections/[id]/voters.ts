@@ -48,7 +48,7 @@ const handleGet = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
       },
     });
 
-    const voterList = voters.map((voter) => ({
+    const voterList = voters.map((voter: any) => ({
       voterId: voter.voterId,
       name: voter.user.name,
       status: voter.user.status,
@@ -60,9 +60,9 @@ const handleGet = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
       electionId,
       voters: voterList,
       total: voterList.length,
-      votedCount: voterList.filter((v) => v.hasVoted).length,
+      votedCount: voterList.filter((v: any) => v.hasVoted).length,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Get voters error:', error);
     return res.status(500).json({ error: 'Internal server error' });
   }
