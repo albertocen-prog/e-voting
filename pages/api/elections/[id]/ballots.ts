@@ -63,7 +63,7 @@ const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
     });
 
     return res.status(201).json(ballot);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Create ballot error:', error);
     return res.status(500).json({ error: 'Internal server error' });
   }
