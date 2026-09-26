@@ -45,7 +45,7 @@ const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
     const total = await prisma.auditLog.count({ where });
 
     return res.status(200).json({
-      logs: logs.map((log) => ({
+      logs: logs.map((log: any) => ({
         id: log.id,
         action: log.action,
         actor: log.actor,
@@ -61,7 +61,7 @@ const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
         hasMore: skip + take < total,
       },
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Get audit logs error:', error);
     return res.status(500).json({ error: 'Internal server error' });
   }
