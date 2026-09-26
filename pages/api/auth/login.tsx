@@ -7,7 +7,7 @@ import { EmailLoginRequest, AuthResponse } from '@/lib/auth/types';
 /**
  * POST /api/auth/login
  * Email + password login for officials, observers, and admins
- */
+ **/
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
