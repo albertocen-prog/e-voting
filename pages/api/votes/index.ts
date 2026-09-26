@@ -32,7 +32,7 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
 
   try {
     const createdVoteId = await prisma.$transaction(
-      async (tx) => {
+      async (tx: any) => {
         // 1) Lock voter registration row to prevent concurrent race conditions
         const rows = await tx.$queryRaw<Array<{ id?: string; voter_registration_id?: string; voter_id?: string; approvedAt?: Date | null; approved_at?: Date | null }>>`
           SELECT id, approved_at AS "approvedAt"
@@ -81,7 +81,7 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
         await tx.ballotParticipation.create({
           data: {
             ballotId,
-            voterRegistrationId: voterRegId, // Guarantee string type from outer check
+            voterRegistrationId: voterRegId,
           },
         })
 
