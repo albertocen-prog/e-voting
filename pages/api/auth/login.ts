@@ -85,7 +85,7 @@ export default async function handler(
     };
 
     return res.status(200).json(response);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Email login error:', error);
     return res.status(500).json({ error: 'Internal server error' });
   }
