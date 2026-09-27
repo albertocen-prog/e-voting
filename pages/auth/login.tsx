@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, FormEvent } from 'react'
 import { useRouter } from 'next/router'
 
 export default function LoginPage() {
@@ -6,20 +6,18 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const router = useRouter()
-import React, { FormEvent } from 'react';
 
-const submit = async (e: FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
-  // ...
-};
+  const submit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setLoading(true)
 
-  
     try {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       })
+
       if (res.ok) {
         router.push('/')
       } else {
@@ -40,11 +38,19 @@ const submit = async (e: FormEvent<HTMLFormElement>) => {
       <form onSubmit={submit}>
         <label>
           Email
-          <input value={email} onChange={(e) => setEmail(e.target.value)} />
+          <input 
+            type="email" 
+            value={email} 
+            onChange={(e) => setEmail(e.target.value)} 
+          />
         </label>
         <label>
           Password
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+          <input 
+            type="password" 
+            value={password} 
+            onChange={(e) => setPassword(e.target.value)} 
+          />
         </label>
         <button type="submit" disabled={loading}>
           {loading ? 'Signing in...' : 'Sign in'}
@@ -53,4 +59,3 @@ const submit = async (e: FormEvent<HTMLFormElement>) => {
     </main>
   )
 }
-It is  on setEmail ,setPassword, setLoading
