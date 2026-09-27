@@ -1,29 +1,18 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
 import { authMiddleware } from '@/lib/auth/middleware';
 import { prisma } from '@/lib/db';
 import { createAuditLog } from '@/lib/db/audit';
-
-export interface NextApiRequestWithAuth extends NextApiRequest {
-  user?: any;
-}
-
-interface VoteRequest {
-  electionId: string;
-  ballotId: string;
-  optionId: string;
-}
 
 /**
  * POST /api/elections/[id]/vote
  * Cast an anonymous vote and record ballot participation (APPROVED voter only)
  */
-const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
+const handler = async (req, res) => {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-    const { electionId, ballotId, optionId } = req.body as VoteRequest;
+    const { electionId, ballotId, optionId } = req.body;
 
     if (!electionId || !ballotId || !optionId) {
       return res.status(400).json({
@@ -145,7 +134,7 @@ const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
       receiptId: participation.id,
       electionId,
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Vote casting error:', error);
 
     // Handle unique constraint violation on BallotParticipation
