@@ -1,22 +1,17 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
 import { prisma } from '@/lib/db';
 import { signToken } from '@/lib/auth/jwt';
-import { VoterLoginRequest, AuthResponse } from '@/lib/auth/types';
 
 /**
  * POST /api/auth/voter-login
  * Voter ID-based login endpoint
  */
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-    const { voterId } = req.body as VoterLoginRequest;
+    const { voterId } = req.body;
 
     if (!voterId) {
       return res.status(400).json({ error: 'Voter ID is required' });
@@ -50,8 +45,8 @@ export default async function handler(
     const token = signToken({
       userId: user.id,
       voterId: voterRegistration.voterId,
-      role: user.role as any,
-      status: user.status as any,
+      role: user.role,
+      status: user.status,
     });
 
     await prisma.auditLog.create({
@@ -65,7 +60,7 @@ export default async function handler(
       },
     });
 
-    const response: AuthResponse = {
+    const response = {
       token,
       user: {
         id: user.id,
@@ -76,7 +71,7 @@ export default async function handler(
     };
 
     return res.status(200).json(response);
-  } catch (error: any) {
+  } catch (error) {
     console.error('Voter login error:', error);
     return res.status(500).json({ error: 'Internal server error' });
   }
