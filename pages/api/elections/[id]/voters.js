@@ -1,16 +1,11 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
 import { requireRole } from '@/lib/auth/middleware';
 import { prisma } from '@/lib/db';
-
-export interface NextApiRequestWithAuth extends NextApiRequest {
-  user?: any;
-}
 
 /**
  * GET /api/elections/[electionId]/voters
  * Get list of voters for an election
  */
-const handleGet = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
+const handleGet = async (req, res) => {
   try {
     const { electionId } = req.query;
 
@@ -48,7 +43,7 @@ const handleGet = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
       },
     });
 
-    const voterList = voters.map((voter: any) => ({
+    const voterList = voters.map((voter) => ({
       voterId: voter.voterId,
       name: voter.user.name,
       status: voter.user.status,
@@ -60,15 +55,15 @@ const handleGet = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
       electionId,
       voters: voterList,
       total: voterList.length,
-      votedCount: voterList.filter((v: any) => v.hasVoted).length,
+      votedCount: voterList.filter((v) => v.hasVoted).length,
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Get voters error:', error);
     return res.status(500).json({ error: 'Internal server error' });
   }
 };
 
-const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
+const handler = async (req, res) => {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
