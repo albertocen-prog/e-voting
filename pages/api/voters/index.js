@@ -1,23 +1,18 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
 import { requireRole } from '@/lib/auth/middleware';
 import { prisma } from '@/lib/db';
 import { createAuditLog } from '@/lib/db/audit';
 import { parsePaginationParams } from '@/lib/db/pagination';
 
-export interface NextApiRequestWithAuth extends NextApiRequest {
-  user?: any;
-}
-
 /**
  * GET /api/voters
  * List all voter registrations with pagination (ADMIN or ELECTION_OFFICIAL only)
  */
-const handleGet = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
+const handleGet = async (req, res) => {
   try {
     const { skip: skipStr, take: takeStr, status } = req.query;
-    const { skip, take } = parsePaginationParams(skipStr as string, takeStr as string);
+    const { skip, take } = parsePaginationParams(skipStr, takeStr);
 
-    const where: any = {};
+    const where = {};
     if (status) {
       where.user = { status };
     }
@@ -42,12 +37,12 @@ const handleGet = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
     const total = await prisma.voterRegistration.count({ where });
 
     if (req.user) {
-      const user = req.user as any;
+      const user = req.user;
       await createAuditLog({
         actorId: user.id || user.userId || user.sub || '',
         actorRole: user.role || 'UNKNOWN',
-        action: 'VIEW_VOTER_LIST' as any,
-        targetType: 'VOTER' as any,
+        action: 'VIEW_VOTER_LIST',
+        targetType: 'VOTER',
         details: {
           skip,
           take,
@@ -58,7 +53,7 @@ const handleGet = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
     }
 
     return res.status(200).json({
-      voters: voters.map((v: any) => ({
+      voters: voters.map((v) => ({
         id: v.id,
         voterId: v.voterId,
         name: v.user.name,
@@ -74,13 +69,13 @@ const handleGet = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
         hasMore: skip + take < total,
       },
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Get voters error:', error);
     return res.status(500).json({ error: 'Internal server error' });
   }
 };
 
-const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
+const handler = async (req, res) => {
   if (req.method === 'GET') {
     return handleGet(req, res);
   }
