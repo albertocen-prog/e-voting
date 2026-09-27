@@ -1,4 +1,4 @@
-import { useState, FormEvent } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/router'
 
 export default function LoginPage() {
@@ -7,7 +7,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const router = useRouter()
 
-  const submit = async (e: FormEvent<HTMLFormElement>) => {
+  const submit = async (e) => {
     e.preventDefault()
     setLoading(true)
 
