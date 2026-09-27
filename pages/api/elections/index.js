@@ -1,23 +1,18 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
 import { requireRole } from '@/lib/auth/middleware';
 import { prisma } from '@/lib/db';
 import { createAuditLog } from '@/lib/db/audit';
 import { parsePaginationParams } from '@/lib/db/pagination';
 
-export interface NextApiRequestWithAuth extends NextApiRequest {
-  user?: any;
-}
-
 /**
  * GET /api/elections
  * List all elections with pagination
  */
-const handleGet = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
+const handleGet = async (req, res) => {
   try {
     const { skip: skipStr, take: takeStr, status } = req.query;
-    const { skip, take } = parsePaginationParams(skipStr as string, takeStr as string);
+    const { skip, take } = parsePaginationParams(skipStr, takeStr);
 
-    const where: any = {};
+    const where = {};
     if (status) {
       where.status = status;
     }
@@ -63,7 +58,7 @@ const handleGet = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
  * POST /api/elections
  * Create a new election
  */
-const handlePost = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
+const handlePost = async (req, res) => {
   try {
     const { title, description, startAt, endAt } = req.body;
 
@@ -89,13 +84,13 @@ const handlePost = async (req: NextApiRequestWithAuth, res: NextApiResponse) => 
         startAt: start,
         endAt: end,
         status: 'DRAFT',
-        createdBy: req.user!.userId,
+        createdBy: req.user.userId,
       },
     });
 
     await createAuditLog({
-      actorId: req.user!.userId,
-      actorRole: req.user!.role as any,
+      actorId: req.user.userId,
+      actorRole: req.user.role,
       action: 'election_created',
       targetType: 'election',
       targetId: election.id,
@@ -113,7 +108,7 @@ const handlePost = async (req: NextApiRequestWithAuth, res: NextApiResponse) => 
   }
 };
 
-const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
+const handler = async (req, res) => {
   if (req.method === 'GET') {
     return handleGet(req, res);
   } else if (req.method === 'POST') {
