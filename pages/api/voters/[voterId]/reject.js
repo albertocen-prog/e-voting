@@ -1,17 +1,12 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
 import { requireRole } from '@/lib/auth/middleware';
 import { prisma } from '@/lib/db';
 import { createAuditLog } from '@/lib/db/audit';
-
-export interface NextApiRequestWithAuth extends NextApiRequest {
-  user?: any;
-}
 
 /**
  * POST /api/voters/[voterId]/reject
  * Reject a voter registration (ADMIN only)
  */
-const handlePost = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
+const handlePost = async (req, res) => {
   try {
     const { voterId } = req.query;
     const { reason } = req.body;
@@ -43,8 +38,8 @@ const handlePost = async (req: NextApiRequestWithAuth, res: NextApiResponse) => 
 
     // Log action
     await createAuditLog({
-      actorId: req.user!.userId,
-      actorRole: req.user!.role as any,
+      actorId: req.user.userId,
+      actorRole: req.user.role,
       action: 'voter_rejected',
       targetType: 'voter_registration',
       targetId: registration.id,
@@ -65,7 +60,7 @@ const handlePost = async (req: NextApiRequestWithAuth, res: NextApiResponse) => 
   }
 };
 
-const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
+const handler = async (req, res) => {
   if (req.method === 'POST') {
     return handlePost(req, res);
   }
