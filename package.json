@@ -17,10 +17,11 @@
   "prisma": {
     "seed": "node prisma/seed.js"
   },
-  "dependencies": {
+   "dependencies": {
     "@prisma/client": "^5.22.0",
-    "@aws-sdk/client-s3": "^3.x.x",
-    "formidable": "^3.x.x",
+    "@aws-sdk/client-kms": "^3.0.0",
+    "@aws-sdk/client-s3": "^3.0.0",
+    "formidable": "^3.0.0",
     "axios": "^1.4.0",
     "bcryptjs": "^2.4.3",
     "jsonwebtoken": "^9.0.0",
@@ -28,6 +29,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
+
   "devDependencies": {
     "@babel/preset-env": "^7.22.15",
     "@babel/preset-react": "^7.22.5",
