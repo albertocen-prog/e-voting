@@ -1,4 +1,5 @@
 import { requireRole } from '@/lib/auth/middleware';
+import CreateUserForm from '@/components/admin/CreateUserForm';
 import { prisma } from '@/lib/db';
 
 /**
