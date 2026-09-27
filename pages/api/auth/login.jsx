@@ -1,13 +1,13 @@
-import React, { useState, FormEvent, ChangeEvent } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/router';
 
 export default function VoterLoginPage() {
   const router = useRouter();
-  const [voterId, setVoterId] = useState<string>('');
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string>('');
+  const [voterId, setVoterId] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const submit = async (e: FormEvent<HTMLFormElement>) => {
+  const submit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
@@ -26,7 +26,7 @@ export default function VoterLoginPage() {
       }
 
       router.push('/voter/dashboard');
-    } catch (err: any) {
+    } catch (err) {
       setError(err.message || 'An unexpected error occurred');
     } finally {
       setLoading(false);
@@ -45,7 +45,7 @@ export default function VoterLoginPage() {
             id="voterId"
             type="text"
             value={voterId}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => setVoterId(e.target.value)}
+            onChange={(e) => setVoterId(e.target.value)}
             placeholder="Enter your Voter ID"
             required
             style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
