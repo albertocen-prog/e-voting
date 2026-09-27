@@ -3,7 +3,7 @@ import { prisma } from '@/lib/db';
 
 /**
  * GET /api/admin/dashboard
- * Admin dashboard with system overview
+ * Admin dashboard with system overview metrics
  */
 const handler = async (req, res) => {
   if (req.method !== 'GET') {
@@ -11,40 +11,45 @@ const handler = async (req, res) => {
   }
 
   try {
-    // Get election statistics
-    const [totalElections, openElections, closedElections] = await Promise.all([
+    // Run election, voter, staff, and audit queries concurrently
+    const [
+      totalElections,
+      openElections,
+      closedElections,
+      totalVoters,
+      approvedVoters,
+      pendingVoters,
+      staffCount,
+      recentLogs,
+    ] = await Promise.all([
+      // Election stats
       prisma.election.count(),
       prisma.election.count({ where: { status: 'OPEN' } }),
       prisma.election.count({ where: { status: 'CLOSED' } }),
-    ]);
-
-    // Get user statistics
-    const [totalVoters, approvedVoters, pendingVoters] = await Promise.all([
+      // Voter stats
       prisma.voterRegistration.count(),
       prisma.user.count({ where: { role: 'VOTER', status: 'APPROVED' } }),
       prisma.user.count({ where: { role: 'VOTER', status: 'PENDING' } }),
-    ]);
-
-    // Get staff users
-    const staffCount = await prisma.user.count({
-      where: {
-        role: { in: ['ELECTION_OFFICIAL', 'OBSERVER', 'ADMIN'] },
-      },
-    });
-
-    // Get recent activity
-    const recentLogs = await prisma.auditLog.findMany({
-      where: {
-        action: { in: ['vote_cast', 'election_opened', 'election_closed'] },
-      },
-      include: {
-        actor: {
-          select: { id: true, name: true, role: true },
+      // Staff counts (Admin, Official, Observer)
+      prisma.user.count({
+        where: {
+          role: { in: ['ELECTION_OFFICIAL', 'OBSERVER', 'ADMIN'] },
         },
-      },
-      orderBy: { createdAt: 'desc' },
-      take: 10,
-    });
+      }),
+      // Recent system activity audit log
+      prisma.auditLog.findMany({
+        where: {
+          action: { in: ['vote_cast', 'election_opened', 'election_closed'] },
+        },
+        include: {
+          actor: {
+            select: { id: true, name: true, role: true },
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 10,
+      }),
+    ]);
 
     return res.status(200).json({
       elections: {
@@ -59,8 +64,10 @@ const handler = async (req, res) => {
       },
       staff: staffCount,
       recentActivity: recentLogs.map((log) => ({
+        id: log.id,
         action: log.action,
         actor: log.actor?.name ?? 'System',
+        role: log.actor?.role ?? 'SYSTEM',
         timestamp: log.createdAt,
       })),
     });
