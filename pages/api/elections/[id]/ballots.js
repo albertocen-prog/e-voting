@@ -1,17 +1,12 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
 import { requireRole } from '@/lib/auth/middleware';
 import { prisma } from '@/lib/db';
 import { createAuditLog } from '@/lib/db/audit';
-
-export interface NextApiRequestWithAuth extends NextApiRequest {
-  user?: any;
-}
 
 /**
  * POST /api/elections/[id]/ballots
  * Create a ballot
  */
-const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
+const handler = async (req, res) => {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -46,13 +41,13 @@ const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
       data: {
         electionId: id,
         title,
-        type: type as any,
+        type,
       },
     });
 
     await createAuditLog({
-      actorId: req.user!.userId,
-      actorRole: req.user!.role as any,
+      actorId: req.user.userId,
+      actorRole: req.user.role,
       action: 'ballot_created',
       targetType: 'ballot',
       targetId: ballot.id,
@@ -63,7 +58,7 @@ const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
     });
 
     return res.status(201).json(ballot);
-  } catch (error: any) {
+  } catch (error) {
     console.error('Create ballot error:', error);
     return res.status(500).json({ error: 'Internal server error' });
   }
