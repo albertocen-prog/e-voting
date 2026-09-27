@@ -6,10 +6,14 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const router = useRouter()
+import React, { FormEvent } from 'react';
 
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
+const submit = async (e: FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+  // ...
+};
+
+  
     try {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
