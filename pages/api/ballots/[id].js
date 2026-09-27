@@ -1,15 +1,7 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
 import { authMiddleware } from '@/lib/auth/middleware';
 import { prisma } from '@/lib/db';
 
-export interface NextApiRequestWithAuth extends NextApiRequest {
-  user?: any;
-}
-
-async function handler(
-  req: NextApiRequestWithAuth,
-  res: NextApiResponse
-) {
+async function handler(req, res) {
   // 1. Guard against unallowed HTTP methods first
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -31,11 +23,6 @@ async function handler(
     if (!ballot) {
       return res.status(404).json({ error: 'Ballot not found' });
     }
-
-    // 3. Optional: Verify ownership/authorization if needed
-    // if (ballot.userId !== req.user?.id) {
-    //   return res.status(403).json({ error: 'Forbidden' });
-    // }
 
     return res.status(200).json(ballot);
   } catch (error) {
