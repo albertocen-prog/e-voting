@@ -7,7 +7,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const router = useRouter()
 
-  const submit = async (e: any) => {
+  const submit = async (e) => {
     e.preventDefault()
     setLoading(true)
 
