@@ -1,16 +1,11 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
 import { requireRole } from '@/lib/auth/middleware';
 import { prisma } from '@/lib/db';
-
-export interface NextApiRequestWithAuth extends NextApiRequest {
-  user?: any;
-}
 
 /**
  * GET /api/elections/[id]/results
  * Get election results
  */
-const handleGet = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
+const handleGet = async (req, res) => {
   try {
     const { id } = req.query;
 
@@ -45,7 +40,7 @@ const handleGet = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
     }
 
     const results = await Promise.all(
-      election.ballots.map(async (ballot: any) => {
+      election.ballots.map(async (ballot) => {
         const voteCounts = await prisma.vote.groupBy({
           by: ['optionId'],
           where: { ballotId: ballot.id },
@@ -54,8 +49,8 @@ const handleGet = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
           },
         });
 
-        const optionResults = ballot.options.map((option: any) => {
-          const voteCount = voteCounts.find((vc: any) => vc.optionId === option.id)?._count.id || 0;
+        const optionResults = ballot.options.map((option) => {
+          const voteCount = voteCounts.find((vc) => vc.optionId === option.id)?._count.id || 0;
           return {
             optionId: option.id,
             label: option.label,
@@ -63,7 +58,7 @@ const handleGet = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
           };
         });
 
-        const totalVotes = optionResults.reduce((sum: number, or: any) => sum + or.voteCount, 0);
+        const totalVotes = optionResults.reduce((sum, or) => sum + or.voteCount, 0);
 
         return {
           ballotId: ballot.id,
@@ -80,7 +75,7 @@ const handleGet = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
       status: election.status,
       ballots: results,
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Get results error:', error);
     return res.status(500).json({ error: 'Internal server error' });
   }
@@ -90,7 +85,7 @@ const handleGet = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
  * GET /api/elections/[id]/results.csv
  * Export election results as CSV
  */
-const handleGetCsv = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
+const handleGetCsv = async (req, res) => {
   try {
     const { id } = req.query;
 
@@ -141,7 +136,7 @@ const handleGetCsv = async (req: NextApiRequestWithAuth, res: NextApiResponse) =
       });
 
       for (const option of ballot.options) {
-        const voteCount = voteCounts.find((vc: any) => vc.optionId === option.id)?._count.id || 0;
+        const voteCount = voteCounts.find((vc) => vc.optionId === option.id)?._count.id || 0;
         csv += `"${option.label}",${voteCount}\n`;
       }
 
@@ -151,13 +146,13 @@ const handleGetCsv = async (req: NextApiRequestWithAuth, res: NextApiResponse) =
     res.setHeader('Content-Type', 'text/csv');
     res.setHeader('Content-Disposition', `attachment; filename="election-results-${id}.csv"`);
     return res.status(200).send(csv);
-  } catch (error: any) {
+  } catch (error) {
     console.error('Export results error:', error);
     return res.status(500).json({ error: 'Internal server error' });
   }
 };
 
-const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
+const handler = async (req, res) => {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
