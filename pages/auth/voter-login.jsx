@@ -1,12 +1,11 @@
-import { useState, FormEvent } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/router';
 
 export default function VoterLogin() {
   const [voterId, setVoterId] = useState('');
   const router = useRouter();
 
-  // Explicitly typing 'e' fixes "implicitly has an 'any' type"
-  const submit = async (e: FormEvent) => {
+  const submit = async (e) => {
     e.preventDefault();
     try {
       const res = await fetch('/api/auth/voter-login', {
