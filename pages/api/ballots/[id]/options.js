@@ -1,17 +1,12 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
 import { requireRole } from '@/lib/auth/middleware';
 import { prisma } from '@/lib/db';
 import { createAuditLog } from '@/lib/db/audit';
-
-export interface NextApiRequestWithAuth extends NextApiRequest {
-  user?: any;
-}
 
 /**
  * POST /api/ballots/[id]/options
  * Add an option to a ballot
  */
-const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
+const handler = async (req, res) => {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -52,8 +47,8 @@ const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
     });
 
     await createAuditLog({
-      actorId: req.user!.userId,
-      actorRole: req.user!.role as any,
+      actorId: req.user.userId,
+      actorRole: req.user.role,
       action: 'option_created',
       targetType: 'option',
       targetId: option.id,
