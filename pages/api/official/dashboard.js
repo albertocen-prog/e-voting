@@ -1,16 +1,11 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
 import { authMiddleware } from '@/lib/auth/middleware';
 import { prisma } from '@/lib/db';
-
-export interface NextApiRequestWithAuth extends NextApiRequest {
-  user?: any;
-}
 
 /**
  * GET /api/official/dashboard
  * Election official dashboard with active elections and pending approvals
  */
-const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
+const handler = async (req, res) => {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -50,7 +45,7 @@ const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
 
     return res.status(200).json({
       activeElections,
-      pendingApprovals: pendingVoters.map((v: any) => ({
+      pendingApprovals: pendingVoters.map((v) => ({
         voterId: v.voterId,
         registeredAt: v.user.createdAt,
         verificationInfo: v.verificationInfo,
@@ -60,7 +55,7 @@ const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
         pendingApprovalsCount: pendingVoters.length,
       },
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Official dashboard error:', error);
     return res.status(500).json({ error: 'Internal server error' });
   }
