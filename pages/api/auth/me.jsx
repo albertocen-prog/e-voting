@@ -1,16 +1,11 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
 import { authMiddleware } from '@/lib/auth/middleware';
 import { prisma } from '@/lib/db';
-
-export interface NextApiRequestWithAuth extends NextApiRequest {
-  user?: any;
-}
 
 /**
  * GET /api/auth/me
  * Get current user information
  */
-const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
+const handler = async (req, res) => {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
