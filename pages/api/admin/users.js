@@ -1,23 +1,18 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
 import { requireRole } from '@/lib/auth/middleware';
 import { prisma } from '@/lib/db';
-
-export interface NextApiRequestWithAuth extends NextApiRequest {
-  user?: any;
-}
 
 /**
  * GET /api/admin/users
  * Manage all users (ADMIN only)
  */
-const handleGet = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
+const handleGet = async (req, res) => {
   try {
     const { skip: skipStr, take: takeStr, role, status } = req.query;
 
-    const skip = skipStr ? Math.max(0, parseInt(skipStr as string, 10)) : 0;
-    const take = takeStr ? Math.max(1, Math.min(100, parseInt(takeStr as string, 10))) : 20;
+    const skip = skipStr ? Math.max(0, parseInt(skipStr, 10)) : 0;
+    const take = takeStr ? Math.max(1, Math.min(100, parseInt(takeStr, 10))) : 20;
 
-    const where: any = {};
+    const where = {};
     if (role) where.role = role;
     if (status) where.status = status;
 
@@ -57,7 +52,7 @@ const handleGet = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
  * PATCH /api/admin/users/[id]
  * Update user role or status (ADMIN only)
  */
-const handlePatch = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
+const handlePatch = async (req, res) => {
   try {
     const { id } = req.query;
     const { role, status } = req.body;
@@ -89,7 +84,7 @@ const handlePatch = async (req: NextApiRequestWithAuth, res: NextApiResponse) =>
   }
 };
 
-const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
+const handler = async (req, res) => {
   if (req.method === 'GET') {
     return handleGet(req, res);
   } else if (req.method === 'PATCH') {
