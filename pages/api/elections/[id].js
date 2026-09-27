@@ -1,16 +1,11 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
 import { authMiddleware } from '@/lib/auth/middleware';
 import { prisma } from '@/lib/db';
-
-export interface NextApiRequestWithAuth extends NextApiRequest {
-  user?: any;
-}
 
 /**
  * GET /api/elections/[id]
  * Get election details by ID
  */
-const handleGet = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
+const handleGet = async (req, res) => {
   try {
     const { id } = req.query;
 
@@ -57,7 +52,7 @@ const handleGet = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
  * PATCH /api/elections/[id]
  * Update election details
  */
-const handlePatch = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
+const handlePatch = async (req, res) => {
   try {
     const { id } = req.query;
     const { title, description, startAt, endAt } = req.body;
@@ -102,8 +97,8 @@ const handlePatch = async (req: NextApiRequestWithAuth, res: NextApiResponse) =>
 
     const { createAuditLog } = await import('@/lib/db/audit');
     await createAuditLog({
-      actorId: req.user!.userId,
-      actorRole: req.user!.role as any,
+      actorId: req.user.userId,
+      actorRole: req.user.role,
       action: 'election_updated',
       targetType: 'election',
       targetId: id,
@@ -116,7 +111,7 @@ const handlePatch = async (req: NextApiRequestWithAuth, res: NextApiResponse) =>
   }
 };
 
-const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
+const handler = async (req, res) => {
   if (req.method === 'GET') {
     return handleGet(req, res);
   } else if (req.method === 'PATCH') {
