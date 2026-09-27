@@ -1,17 +1,12 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
 import { requireRole } from '@/lib/auth/middleware';
 import { prisma } from '@/lib/db';
-
-export interface NextApiRequestWithAuth extends NextApiRequest {
-  user?: any;
-}
 
 /**
  * GET /api/audit?election_id=&actor_id=&action=&skip=&take=
  * Get audit logs with filtering
  * Accessible to ELECTION_OFFICIAL, OBSERVER, and ADMIN
  */
-const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
+const handler = async (req, res) => {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -19,10 +14,10 @@ const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
   try {
     const { election_id, actor_id, action, skip: skipStr, take: takeStr } = req.query;
 
-    const skip = skipStr ? Math.max(0, parseInt(skipStr as string, 10)) : 0;
-    const take = takeStr ? Math.max(1, Math.min(100, parseInt(takeStr as string, 10))) : 50;
+    const skip = skipStr ? Math.max(0, parseInt(skipStr, 10)) : 0;
+    const take = takeStr ? Math.max(1, Math.min(100, parseInt(takeStr, 10))) : 50;
 
-    const where: any = {};
+    const where = {};
     if (election_id) where.targetId = election_id;
     if (actor_id) where.actorId = actor_id;
     if (action) where.action = action;
@@ -47,7 +42,7 @@ const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
     const total = await prisma.auditLog.count({ where });
 
     return res.status(200).json({
-      logs: logs.map((log: any) => ({
+      logs: logs.map((log) => ({
         id: log.id,
         actor: log.actor,
         action: log.action,
@@ -69,5 +64,4 @@ const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
   }
 };
 
-// Pass roles as a SINGLE ARRAY argument:
-export default requireRole(['ELECTION_OFFICIAL', 'OBSERVER', 'ADMIN'])(handler as any);
+export default requireRole(['ELECTION_OFFICIAL', 'OBSERVER', 'ADMIN'])(handler);
