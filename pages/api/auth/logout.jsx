@@ -1,15 +1,10 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
 import { requireRole } from '@/lib/auth/middleware';
-
-export interface NextApiRequestWithAuth extends NextApiRequest {
-  user?: any;
-}
 
 /**
  * POST /api/auth/logout
  * Clears the authentication token cookie / session
  */
-const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
+const handler = async (req, res) => {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -28,5 +23,4 @@ const handler = async (req: NextApiRequestWithAuth, res: NextApiResponse) => {
   }
 };
 
-// Use requireRole with all standard roles or leave array empty if open to any authenticated user
-export default requireRole(['VOTER', 'ELECTION_OFFICIAL', 'OBSERVER', 'ADMIN'])(handler as any);
+export default requireRole(['VOTER', 'ELECTION_OFFICIAL', 'OBSERVER', 'ADMIN'])(handler);
