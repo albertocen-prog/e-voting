@@ -99,7 +99,7 @@ export default function Home() {
 
                   <div style={{ borderTop: '1px solid #eee', margin: '6px 0' }} />
 
-                  <Link href="/about" onClick={() => setMenuOpen(false)} style={menuItemStyle}>About Us</Link>
+                  <Link href="/contact" onClick={() => setMenuOpen(false)} style={menuItemStyle}>About Us</Link>
                   <Link href="/privacy" onClick={() => setMenuOpen(false)} style={menuItemStyle}>Privacy Policy</Link>
                   <Link href="/terms" onClick={() => setMenuOpen(false)} style={menuItemStyle}>Terms of Service</Link>
 
