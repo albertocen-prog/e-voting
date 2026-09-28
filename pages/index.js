@@ -1,13 +1,15 @@
 import Head from 'next/head'
 import Link from 'next/link'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 export default function Home() {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const menuRef = useRef(null)
 
   useEffect(() => {
-    // Check if user is logged in by verifying session
+    // Check session
     const checkAuth = async () => {
       try {
         const response = await fetch('/api/auth/me')
@@ -25,6 +27,17 @@ export default function Home() {
     checkAuth()
   }, [])
 
+  // Close 3-dot dropdown menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setMenuOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
   if (loading) {
     return (
       <div className="page-wrapper" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
@@ -33,7 +46,6 @@ export default function Home() {
     )
   }
 
-  // Safe property extraction using JavaScript optional chaining
   const userName = user?.name || ''
 
   return (
@@ -47,26 +59,65 @@ export default function Home() {
 
       <div className="page-wrapper">
         {/* Navigation Bar */}
-        <nav className="navbar">
-          <div className="nav-container">
+        <nav className="navbar" style={navStyle}>
+          <div className="nav-container" style={navContainerStyle}>
             <div className="nav-brand">
               <h2>🗳️ Student Voting Platform</h2>
             </div>
-            <ul className="nav-links">
-              <li><Link href="/">Home</Link></li>
-              <li><Link href="/elections">Elections</Link></li>
-              {user ? (
-                <li><span>Welcome, {userName}</span></li>
-              ) : (
-                <li><Link href="/auth/login">Login</Link></li>
+
+            {/* 3-Dot Main Menu Container */}
+            <div ref={menuRef} style={{ position: 'relative' }}>
+              <button
+                onClick={() => setMenuOpen(!menuOpen)}
+                aria-label="Toggle Main Menu"
+                style={threeDotBtnStyle}
+              >
+                &#8942;
+              </button>
+
+              {/* Dropdown Menu */}
+              {menuOpen && (
+                <div style={dropdownStyle}>
+                  {user && (
+                    <div style={{ padding: '10px 16px', borderBottom: '1px solid #eee', fontWeight: 'bold' }}>
+                      Welcome, {userName}
+                    </div>
+                  )}
+
+                  <a href="#hero" onClick={() => setMenuOpen(false)} style={menuItemStyle}>Home</a>
+                  <a href="#features" onClick={() => setMenuOpen(false)} style={menuItemStyle}>Key Features</a>
+                  <a href="#how-it-works" onClick={() => setMenuOpen(false)} style={menuItemStyle}>How It Works</a>
+                  <a href="#roles" onClick={() => setMenuOpen(false)} style={menuItemStyle}>Roles &amp; Permissions</a>
+                  <a href="#security" onClick={() => setMenuOpen(false)} style={menuItemStyle}>Security &amp; Compliance</a>
+
+                  <div style={{ borderTop: '1px solid #eee', margin: '6px 0' }} />
+
+                  <Link href="/register" onClick={() => setMenuOpen(false)} style={menuItemStyle}>Voter Registration</Link>
+                  <Link href="/signup" onClick={() => setMenuOpen(false)} style={menuItemStyle}>Staff Registration</Link>
+                  <Link href="/admin" onClick={() => setMenuOpen(false)} style={menuItemStyle}>Admin Dashboard</Link>
+
+                  <div style={{ borderTop: '1px solid #eee', margin: '6px 0' }} />
+
+                  <Link href="/about" onClick={() => setMenuOpen(false)} style={menuItemStyle}>About Us</Link>
+                  <Link href="/privacy" onClick={() => setMenuOpen(false)} style={menuItemStyle}>Privacy Policy</Link>
+                  <Link href="/terms" onClick={() => setMenuOpen(false)} style={menuItemStyle}>Terms of Service</Link>
+
+                  {!user && (
+                    <>
+                      <div style={{ borderTop: '1px solid #eee', margin: '6px 0' }} />
+                      <Link href="/auth/login" onClick={() => setMenuOpen(false)} style={{ ...menuItemStyle, color: '#0070f3', fontWeight: 'bold' }}>Login</Link>
+                    </>
+                  )}
+                </div>
               )}
-            </ul>
+            </div>
           </div>
         </nav>
 
-        {/* Main Content */}
+        {/* Main Single Page Content */}
         <main className="main-content">
-          <div className="hero-section">
+          {/* Hero Section */}
+          <section id="hero" className="hero-section">
             <div className="hero-content">
               <h1>
                 {user ? `Welcome back, ${userName}` : 'Welcome to Student Voting Platform'}
@@ -107,10 +158,10 @@ export default function Home() {
                 <p>WCAG compliant interface</p>
               </div>
             </div>
-          </div>
+          </section>
 
           {/* Features Section */}
-          <section className="features-section">
+          <section id="features" className="features-section">
             <h2>Key Features</h2>
             <div className="features-grid">
               <div className="feature-card">
@@ -139,7 +190,7 @@ export default function Home() {
 
               <div className="feature-card">
                 <div className="feature-icon">📊</div>
-                <h3>Results & Reporting</h3>
+                <h3>Results &amp; Reporting</h3>
                 <p>Real-time results dashboard with CSV export capabilities for detailed analysis.</p>
               </div>
 
@@ -164,7 +215,7 @@ export default function Home() {
           </section>
 
           {/* How It Works Section */}
-          <section className="how-it-works">
+          <section id="how-it-works" className="how-it-works">
             <h2>How It Works</h2>
             <div className="steps-container">
               <div className="step">
@@ -173,7 +224,7 @@ export default function Home() {
                 <p>Submit your voter registration with required information. Elections officials will review and approve your registration.</p>
               </div>
 
-              <div className="step-arrow">→</div>
+              <div className="step-arrow">&rarr;</div>
 
               <div className="step">
                 <div className="step-number">2</div>
@@ -181,7 +232,7 @@ export default function Home() {
                 <p>Login using your voter ID when an election is open. Your session is secured with encrypted cookies.</p>
               </div>
 
-              <div className="step-arrow">→</div>
+              <div className="step-arrow">&rarr;</div>
 
               <div className="step">
                 <div className="step-number">3</div>
@@ -189,7 +240,7 @@ export default function Home() {
                 <p>Select your preferred option from the ballot. The system ensures one vote per voter per election.</p>
               </div>
 
-              <div className="step-arrow">→</div>
+              <div className="step-arrow">&rarr;</div>
 
               <div className="step">
                 <div className="step-number">4</div>
@@ -200,8 +251,8 @@ export default function Home() {
           </section>
 
           {/* User Roles Section */}
-          <section className="user-roles">
-            <h2>User Roles & Permissions</h2>
+          <section id="roles" className="user-roles">
+            <h2>User Roles &amp; Permissions</h2>
             <div className="roles-grid">
               <div className="role-card">
                 <h3>🗳️ Voter</h3>
@@ -250,8 +301,8 @@ export default function Home() {
           </section>
 
           {/* Security Section */}
-          <section className="security-section">
-            <h2>Security & Compliance</h2>
+          <section id="security" className="security-section">
+            <h2>Security &amp; Compliance</h2>
             <div className="security-features">
               <div className="security-item">
                 <h4>🔐 Encryption</h4>
@@ -298,15 +349,64 @@ export default function Home() {
         {/* Footer */}
         <footer className="footer">
           <div className="footer-content">
-            <p>&copy; 2024 Student Voting Platform. All rights reserved.</p>
+            <p>&copy; 2026 Student Voting Platform. All rights reserved.</p>
             <div className="footer-links">
+              <Link href="/about">About Us</Link>
               <Link href="/privacy">Privacy Policy</Link>
               <Link href="/terms">Terms of Service</Link>
-              <Link href="/contact">Contact Us</Link>
             </div>
           </div>
         </footer>
       </div>
     </>
   )
+}
+
+// Inline Styles for 3-Dot Menu and Navbar Alignment
+const navStyle = {
+  position: 'sticky',
+  top: 0,
+  zIndex: 1000,
+  backgroundColor: '#fff',
+  boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+}
+
+const navContainerStyle = {
+  display: 'flex',
+  justify: 'space-between',
+  alignItems: 'center',
+  padding: '12px 24px',
+  maxWidth: '1200px',
+  margin: '0 auto',
+}
+
+const threeDotBtnStyle = {
+  background: 'none',
+  border: 'none',
+  fontSize: '1.8rem',
+  cursor: 'pointer',
+  padding: '4px 12px',
+  borderRadius: '4px',
+  color: '#333',
+}
+
+const dropdownStyle = {
+  position: 'absolute',
+  right: 0,
+  top: '40px',
+  width: '220px',
+  backgroundColor: '#fff',
+  border: '1px solid #e0e0e0',
+  borderRadius: '8px',
+  boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+  padding: '8px 0',
+  zIndex: 1001,
+}
+
+const menuItemStyle = {
+  display: 'block',
+  padding: '10px 16px',
+  color: '#333',
+  textDecoration: 'none',
+  fontSize: '0.95rem',
 }
