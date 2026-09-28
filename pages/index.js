@@ -86,10 +86,10 @@ export default function Home() {
                   )}
 
                   <a href="#hero" onClick={() => setMenuOpen(false)} style={menuItemStyle}>Home</a>
-                  <link href="/features" onClick={() => setMenuOpen(false)} style={menuItemStyle}>Key Features</link>
-                  <a href="#how-it-works" onClick={() => setMenuOpen(false)} style={menuItemStyle}>How It Works</a>
-                  <link href="/roles" onClick={() => setMenuOpen(false)} style={menuItemStyle}>Roles &amp; Permissions</link>
-                  <link href="/security" onClick={() => setMenuOpen(false)} style={menuItemStyle}>Security &amp; Compliance</link>
+                  <Link href="/features" onClick={() => setMenuOpen(false)} style={menuItemStyle}>Key Features</Link>
+                  <Link href="/how-it-works" onClick={() => setMenuOpen(false)} style={menuItemStyle}>How It Works</Link>
+                  <Link href="/roles" onClick={() => setMenuOpen(false)} style={menuItemStyle}>Roles &amp; Permissions</Link>
+                  <Link href="/security" onClick={() => setMenuOpen(false)} style={menuItemStyle}>Security &amp; Compliance</Link>
 
                   <div style={{ borderTop: '1px solid #eee', margin: '6px 0' }} />
 
