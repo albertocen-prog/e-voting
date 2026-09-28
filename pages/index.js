@@ -40,7 +40,7 @@ export default function Home() {
 
   if (loading) {
     return (
-      <div className="page-wrapper" style={{ display: 'flex', justifyContent: 'center, alignItems: center, minHeight: '100vh' }}>
+      <div className="page-wrapper" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
         <p>Loading...</p>
       </div>
     )
@@ -61,12 +61,13 @@ export default function Home() {
         {/* Navigation Bar */}
         <nav className="navbar" style={navStyle}>
           <div className="nav-container" style={navContainerStyle}>
-            <div className="nav-brand">
-              <h2>🗳️ Student Voting Platform</h2>
+            {/* Title / Logo on the Far Left */}
+            <div className="nav-brand" style={{ margin: 0 }}>
+              <h2 style={{ margin: 0, fontSize: '1.25rem' }}>🗳️ Student Voting Platform</h2>
             </div>
 
-            {/* 3-Dot Main Menu Container */}
-            <div ref={menuRef} style={{ position: 'relative' }}>
+            {/* 3-Dot Main Menu Container on the Far Right */}
+            <div ref={menuRef} style={{ position: 'relative', marginLeft: 'auto' }}>
               <button
                 onClick={() => setMenuOpen(!menuOpen)}
                 aria-label="Toggle Main Menu"
@@ -362,22 +363,24 @@ export default function Home() {
   )
 }
 
-// Inline Styles for 3-Dot Menu and Navbar Alignment
+// Fixed Layout Styles
 const navStyle = {
   position: 'sticky',
   top: 0,
   zIndex: 1000,
   backgroundColor: '#fff',
   boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+  width: '100%',
 }
 
 const navContainerStyle = {
   display: 'flex',
-  justify: 'space-between',
+  justifyContent: 'space-between',
   alignItems: 'center',
   padding: '12px 24px',
   maxWidth: '1200px',
   margin: '0 auto',
+  width: '100%',
 }
 
 const threeDotBtnStyle = {
@@ -388,6 +391,7 @@ const threeDotBtnStyle = {
   padding: '4px 12px',
   borderRadius: '4px',
   color: '#333',
+  lineHeight: '1',
 }
 
 const dropdownStyle = {
@@ -401,6 +405,7 @@ const dropdownStyle = {
   boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
   padding: '8px 0',
   zIndex: 1001,
+  textAlign: 'left',
 }
 
 const menuItemStyle = {
