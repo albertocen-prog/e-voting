@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import Head from 'next/head';
-import CreateUserForm from '@/components/admin/CreateUserForm';
+import CreateUserForm from '../components/admin/CreateUserForm';
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState(null);
