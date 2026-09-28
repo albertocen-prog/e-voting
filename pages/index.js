@@ -40,7 +40,7 @@ export default function Home() {
 
   if (loading) {
     return (
-      <div className="page-wrapper" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+      <div className="page-wrapper" style={{ display: 'flex', justifyContent: 'right, alignItems: 'right', minHeight: '100vh' }}>
         <p>Loading...</p>
       </div>
     )
