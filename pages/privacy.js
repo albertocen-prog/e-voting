@@ -20,7 +20,7 @@ export default function PrivacyPolicy() {
         <section style={sectionStyle}>
           <h2>1. Introduction</h2>
           <p>
-            Welcome to our Electronic Voting Platform ("Platform"). We are committed to protecting 
+            Welcome to our Electronic Voting Platform (&quot;Platform&quot;). We are committed to protecting 
             voter privacy, maintaining the anonymity of your ballot, and ensuring the absolute integrity 
             of every election held on our system. This Privacy Policy explains how we collect, use, 
             disclose, and safeguard your information when you use our website and voting services.
@@ -40,14 +40,14 @@ export default function PrivacyPolicy() {
               or Observer), and security access key details.
             </li>
             <li>
-              <strong>System & Audit Logs:</strong> IP address, device browser type, login timestamps, and 
+              <strong>System &amp; Audit Logs:</strong> IP address, device browser type, login timestamps, and 
               administrative actions to audit platform integrity and prevent fraud.
             </li>
           </ul>
         </section>
 
         <section style={sectionStyle}>
-          <h2>3. Ballot Anonymity & Cryptographic Security</h2>
+          <h2>3. Ballot Anonymity &amp; Cryptographic Security</h2>
           <p>
             <strong>Your vote is strictly confidential and decoupled from your identity.</strong>
           </p>
@@ -72,13 +72,13 @@ export default function PrivacyPolicy() {
         </section>
 
         <section style={sectionStyle}>
-          <h2>5. Data Storage & Third-Party Services</h2>
+          <h2>5. Data Storage &amp; Third-Party Services</h2>
           <p>
             To deliver secure cloud functionality, we utilize trusted enterprise cloud service providers:
           </p>
           <ul>
-            <li><strong>Database Hosting & Compute:</strong> Render Cloud Services.</li>
-            <li><strong>Cryptographic Key Management & Storage:</strong> Amazon Web Services (AWS KMS / AWS S3).</li>
+            <li><strong>Database Hosting &amp; Compute:</strong> Render Cloud Services.</li>
+            <li><strong>Cryptographic Key Management &amp; Storage:</strong> Amazon Web Services (AWS KMS / AWS S3).</li>
           </ul>
           <p>
             All data in transit is encrypted using Industry-Standard TLS (HTTPS), and sensitive information stored in databases is encrypted at rest.
@@ -107,7 +107,7 @@ export default function PrivacyPolicy() {
         <section style={sectionStyle}>
           <h2>8. Contact Information</h2>
           <p>
-            If you have questions, concerns, or requests regarding this Privacy Policy or data security, please contact the System Administrator or Election Official through your organization’s support portal.
+            If you have questions, concerns, or requests regarding this Privacy Policy or data security, please contact the System Administrator or Election Official through your organization&apos;s support portal.
           </p>
         </section>
 
