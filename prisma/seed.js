@@ -1,53 +1,43 @@
-const { PrismaClient } = require('@prisma/client');
-const bcrypt = require('bcryptjs');
+import { PrismaClient } from '@prisma/client'
+import bcrypt from 'bcryptjs'
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient()
 
 async function main() {
-  const passwordHash = await bcrypt.hash('AdminPassword123!', 10);
+  const adminEmail = process.env.ADMIN_EMAIL
+  const adminPassword = process.env.ADMIN_PASSWORD
 
-  // Create Admin
-  await prisma.user.upsert({
-    where: { email: 'admin@e-voting.local' },
-    update: {},
+  if (!adminEmail || !adminPassword) {
+    console.warn('⚠️ ADMIN_EMAIL or ADMIN_PASSWORD not set in environment variables. Skipping admin creation.')
+    return
+  }
+
+  // Hash the admin password from environment variables
+  const hashedPassword = await bcrypt.hash(adminPassword, 10)
+
+  // Upsert admin user (creates if not exists, updates password/role if exists)
+  const admin = await prisma.user.upsert({
+    where: { email: adminEmail },
+    update: {
+      password: hashedPassword,
+      role: 'ADMIN', // Or whatever role identifier you use
+    },
     create: {
-      email: 'admin@e-voting.local',
-      name: 'System Admin',
-      passwordHash,
+      email: adminEmail,
+      name: 'System Administrator',
+      password: hashedPassword,
       role: 'ADMIN',
-      status: 'APPROVED',
     },
-  });
+  })
 
-  // Create Election Official
-  await prisma.user.upsert({
-    where: { email: 'official@e-voting.local' },
-    update: {},
-    create: {
-      email: 'official@e-voting.local',
-      name: 'Chief Election Official',
-      passwordHash,
-      role: 'ELECTION_OFFICIAL',
-      status: 'APPROVED',
-    },
-  });
-
-  // Create Observer
-  await prisma.user.upsert({
-    where: { email: 'observer@e-voting.local' },
-    update: {},
-    create: {
-      email: 'observer@e-voting.local',
-      name: 'Independent Observer',
-      passwordHash,
-      role: 'OBSERVER',
-      status: 'APPROVED',
-    },
-  });
-
-  console.log('Seed accounts created successfully!');
+  console.log(`✅ Admin user configured for: ${admin.email}`)
 }
 
 main()
-  .catch((e) => console.error(e))
-  .finally(async () => await prisma.$disconnect());
+  .catch((e) => {
+    console.error('Error seeding admin:', e)
+    process.exit(1)
+  })
+  .finally(async () => {
+    await prisma.$disconnect()
+  })
