@@ -301,36 +301,6 @@ export default function Home() {
             </div>
           </section>
 
-          {/* Security Section */}
-          <section id="security" className="security-section">
-            <h2>Security &amp; Compliance</h2>
-            <div className="security-features">
-              <div className="security-item">
-                <h4>🔐 Encryption</h4>
-                <p>All data transmitted over HTTPS with secure session cookies (HttpOnly, Secure, SameSite=Strict)</p>
-              </div>
-              <div className="security-item">
-                <h4>🔑 Authentication</h4>
-                <p>Voter ID for voters, bcrypt-hashed passwords for staff. JWT-based sessions for stateless auth.</p>
-              </div>
-              <div className="security-item">
-                <h4>🛡️ Authorization</h4>
-                <p>Role-based access control (RBAC) enforced at both API and database levels</p>
-              </div>
-              <div className="security-item">
-                <h4>📋 Auditability</h4>
-                <p>Append-only audit logs track all actions including votes, election changes, and user role modifications</p>
-              </div>
-              <div className="security-item">
-                <h4>🔒 Data Integrity</h4>
-                <p>Database constraints ensure one vote per voter per election at the database level</p>
-              </div>
-              <div className="security-item">
-                <h4>⚠️ Rate Limiting</h4>
-                <p>Auth endpoints protected with rate limiting to prevent brute force attacks</p>
-              </div>
-            </div>
-          </section>
 
           {/* CTA Section */}
           <section className="cta-section">
@@ -350,7 +320,7 @@ export default function Home() {
         {/* Footer */}
         <footer className="footer">
           <div className="footer-content">
-            <p>&copy; 2026 Student Voting Platform is there produt of Alrine Technology  All rights reserved.</p>
+            <p>&copy; 2026 Student Voting Platform is the product of Alrine Technology  All rights reserved.</p>
             <div className="footer-links">
               <Link href="/about">About Us</Link>
               <Link href="/privacy">Privacy Policy</Link>
