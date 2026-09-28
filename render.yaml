@@ -22,7 +22,8 @@ services:
     env: node
     region: virginia # Must match database region
     # Updated build command: installs dependencies, generates Prisma client, pushes DB schema, seeds admin user, and builds Next.js app
-    buildCommand: npm install && npx prisma generate && npx prisma db push && npx prisma db seed && npm run build
+    buildCommand: DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy" npm install && npx prisma generate && npm run build
+    preDeployCommand: npx prisma db push && npx prisma db seed
     startCommand: npm start
     envVars:
       - fromGroup: shared_products_env # Correct syntax for environment groups
