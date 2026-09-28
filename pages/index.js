@@ -86,10 +86,10 @@ export default function Home() {
                   )}
 
                   <a href="#hero" onClick={() => setMenuOpen(false)} style={menuItemStyle}>Home</a>
-                  <a href="#features" onClick={() => setMenuOpen(false)} style={menuItemStyle}>Key Features</a>
-                  <a href="#how-it-works" onClick={() => setMenuOpen(false)} style={menuItemStyle}>How It Works</a>
-                  <a href="#roles" onClick={() => setMenuOpen(false)} style={menuItemStyle}>Roles &amp; Permissions</a>
-                  <a href="#security" onClick={() => setMenuOpen(false)} style={menuItemStyle}>Security &amp; Compliance</a>
+                  <a href="/features" onClick={() => setMenuOpen(false)} style={menuItemStyle}>Key Features</a>
+                  <a href="/how-it-works" onClick={() => setMenuOpen(false)} style={menuItemStyle}>How It Works</a>
+                  <a href="/roles" onClick={() => setMenuOpen(false)} style={menuItemStyle}>Roles &amp; Permissions</a>
+                  <a href="/security" onClick={() => setMenuOpen(false)} style={menuItemStyle}>Security &amp; Compliance</a>
 
                   <div style={{ borderTop: '1px solid #eee', margin: '6px 0' }} />
 
@@ -157,60 +157,6 @@ export default function Home() {
                 <div className="stat-number">♿</div>
                 <div className="stat-label">Accessible</div>
                 <p>WCAG compliant interface</p>
-              </div>
-            </div>
-          </section>
-
-          {/* Features Section */}
-          <section id="features" className="features-section">
-            <h2>Key Features</h2>
-            <div className="features-grid">
-              <div className="feature-card">
-                <div className="feature-icon">🔑</div>
-                <h3>Secure Authentication</h3>
-                <p>Multiple authentication methods including voter ID login and email+password for officials with role-based access control.</p>
-              </div>
-
-              <div className="feature-card">
-                <div className="feature-icon">🗳️</div>
-                <h3>Election Management</h3>
-                <p>Create, configure, and manage elections with full lifecycle control from draft to closed status.</p>
-              </div>
-
-              <div className="feature-card">
-                <div className="feature-icon">📋</div>
-                <h3>Ballot Configuration</h3>
-                <p>Flexible ballot creation with multiple options and candidate management per election.</p>
-              </div>
-
-              <div className="feature-card">
-                <div className="feature-icon">✅</div>
-                <h3>One Vote Per Voter</h3>
-                <p>Database-level constraints ensure each voter can only vote once per election.</p>
-              </div>
-
-              <div className="feature-card">
-                <div className="feature-icon">📊</div>
-                <h3>Results &amp; Reporting</h3>
-                <p>Real-time results dashboard with CSV export capabilities for detailed analysis.</p>
-              </div>
-
-              <div className="feature-card">
-                <div className="feature-icon">📝</div>
-                <h3>Audit Logging</h3>
-                <p>Immutable append-only audit log tracking all system actions for compliance and transparency.</p>
-              </div>
-
-              <div className="feature-card">
-                <div className="feature-icon">👁️</div>
-                <h3>Observer Mode</h3>
-                <p>Read-only access for observers to monitor elections and view audit logs in real-time.</p>
-              </div>
-
-              <div className="feature-card">
-                <div className="feature-icon">⚙️</div>
-                <h3>Admin Dashboard</h3>
-                <p>Comprehensive admin controls for user management, voter approval, and system configuration.</p>
               </div>
             </div>
           </section>
