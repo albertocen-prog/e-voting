@@ -350,7 +350,7 @@ export default function Home() {
         {/* Footer */}
         <footer className="footer">
           <div className="footer-content">
-            <p>&copy; 2026 Student Voting Platform. All rights reserved.</p>
+            <p>&copy; 2026 Student Voting Platform is there produt of Alrine Technology  All rights reserved.</p>
             <div className="footer-links">
               <Link href="/about">About Us</Link>
               <Link href="/privacy">Privacy Policy</Link>
