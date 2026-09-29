@@ -18,7 +18,7 @@ envGroups:
 
 services:
   - type: web
-    name: e-votiing # Web service name
+    name: e-voting # Web service name
     env: node
     region: virginia
     buildCommand: npm install && npx prisma generate && npx prisma db push && npx prisma db seed && npm run build
