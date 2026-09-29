@@ -1,6 +1,6 @@
 # Render service configuration
 databases:
-  - name: evotingdb_rhy2 
+  - name: database_db 
     plan: free
     databaseName: evotingdb_rhy2
     user: evotingdb_rhy2_user
