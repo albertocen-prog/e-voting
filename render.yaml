@@ -1,9 +1,9 @@
 # Render service configuration
 databases:
-  - name: database_db 
+  - name: evotingdb_rhy2 
     plan: free
     databaseName: evotingdb_rhy2
-    user: db_user
+    user: evotingdb_rhy2_user
     region: virginia # Explicitly set region so DB and services match
 
 envGroups:
